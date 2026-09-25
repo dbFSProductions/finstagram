@@ -177,6 +177,7 @@ function renderCaughtUp(shown) {
 }
 
 function renderPost(p, { compact = false } = {}) {
+  if (p.kind === 'card') return renderPracticeCard(p);
   const t = topicOf(p.topic);
   const liked = state.likes.has(p.id);
   const saved = state.saved.has(p.id);
@@ -184,9 +185,11 @@ function renderPost(p, { compact = false } = {}) {
   const media = p.image
     ? `<img src="${esc(p.image)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" >`
     : renderCard(p, t);
-  const badge = p.audio ? `<span class="badge">🎧 Podcast</span>` : '';
-  const sub = [t.name, p.author ? esc(p.author) : null, host(p.url)].filter(Boolean).join(' · ');
-  return `<article class="post" id="post-${p.id}" data-id="${p.id}">
+  const badge = p.audio ? `<span class="badge">🎧 Podcast</span>` : p.wildcard ? `<span class="badge">🎲 Wildcard</span>` : '';
+  const sub = p.wildcard
+    ? `🎲 Because you like ${p.wildcard.between.map(esc).join(' and ') || 'what you like'}`
+    : [t.name, p.author ? esc(p.author) : null, host(p.url)].filter(Boolean).join(' · ');
+  return `<article class="post ${p.wildcard ? 'wild' : ''}" id="post-${p.id}" data-id="${p.id}">
     <header class="post-head">
       <a class="avatar" style="${gradVars(t)}" data-action="filter" data-topic="${t.id}" href="#home" aria-label="${esc(t.name)}"><span>${t.emoji}</span></a>
       <div class="post-meta">
@@ -205,6 +208,7 @@ function renderPost(p, { compact = false } = {}) {
     </div>
     <div class="post-body">
       ${liked ? `<div class="post-likes">Liked by you</div>` : ''}
+      ${p.wildcard?.why ? `<div class="wild-why">${esc(p.wildcard.why)}</div>` : ''}
       <div class="post-caption"><b>${esc(p.source)}</b> <a href="${esc(p.url)}" data-action="open" class="title">${esc(p.title)}</a>
         ${p.summary ? `<div class="summary ${expanded ? '' : 'clamped'}">${esc(p.summary)}</div>${p.summary.length > 110 && !expanded ? `<button class="more-btn" data-action="expand">more</button>` : ''}` : ''}
       </div>
@@ -217,6 +221,27 @@ function renderPost(p, { compact = false } = {}) {
 
 function renderCard(p, t) {
   return `<div class="post-card" style="${gradVars(t)}"><div class="emoji">${t.emoji}</div><div class="card-title">${esc(p.title)}</div><div class="card-source">${esc(p.source)}</div></div>`;
+}
+
+// A nudge towards another app (Xerra and friends). Plain links out, no reader, no like.
+function renderPracticeCard(p) {
+  const g = { gradient: p.gradient, emoji: p.emoji, name: p.source };
+  return `<article class="post practice" id="post-${p.id}" data-id="${p.id}">
+    <header class="post-head">
+      <a class="avatar" style="${gradVars(g)}" href="${esc(p.url)}" target="_blank" rel="noopener" aria-label="${esc(p.source)}"><span>${p.emoji}</span></a>
+      <div class="post-meta">
+        <div class="post-source">${esc(p.source)} <span class="dot">·</span> <span class="dot">practice</span></div>
+        <div class="post-sub">${esc(host(p.url))}</div>
+      </div>
+    </header>
+    <a class="post-media square" href="${esc(p.url)}" target="_blank" rel="noopener">
+      <div class="post-card" style="${gradVars(g)}"><div class="emoji">${p.emoji}</div><div class="card-title">${esc(p.title)}</div><div class="card-source">${esc(p.cta)} →</div></div>
+    </a>
+    <div class="post-body">
+      <div class="post-caption"><b>${esc(p.source)}</b> ${esc(p.summary)}</div>
+      <div class="post-links"><a class="btn" href="${esc(p.url)}" target="_blank" rel="noopener">${esc(p.cta)}</a></div>
+    </div>
+  </article>`;
 }
 
 function renderCollection(kind) {
@@ -232,7 +257,7 @@ function renderCollection(kind) {
 
 function renderSearch() {
   const q = state.query.trim().toLowerCase();
-  const posts = state.feed.posts.filter((p) => !q || `${p.title} ${p.summary} ${p.source} ${topicOf(p.topic).name}`.toLowerCase().includes(q));
+  const posts = state.feed.posts.filter((p) => p.kind !== 'card' && (!q || `${p.title} ${p.summary} ${p.source} ${topicOf(p.topic).name}`.toLowerCase().includes(q)));
   return `<div class="search-bar"><input type="search" id="q" placeholder="Search your ${state.feed.posts.length} posts" value="${esc(state.query)}" autocomplete="off" autocorrect="off" autocapitalize="off"></div>
     ${posts.length ? '' : `<div class="empty"><h2>No results</h2><p>Nothing in this feed matches “${esc(state.query)}”.</p></div>`}
     <div class="grid">${posts.map((p) => {
@@ -250,8 +275,8 @@ function renderProfile() {
     <div class="profile-head">
       <div class="profile-avatar"><div>🪴</div></div>
       <div class="stats">
-        <div><b>${f.posts.length}</b><span>posts</span></div>
-        <div><b>${f.topics.length}</b><span>interests</span></div>
+        <div><b>${f.postCount ?? f.posts.length}</b><span>posts</span></div>
+        <div><b>${f.topics.filter((t) => !t.wildcard).length}</b><span>interests</span></div>
         <div><b>${f.sources.ok.length}</b><span>sources</span></div>
       </div>
     </div>
@@ -259,7 +284,7 @@ function renderProfile() {
     <ul class="interest-list">${f.topics.map((t) => `
       <li class="interest">
         <a class="avatar" href="#home" data-action="filter" data-topic="${t.id}" style="${gradVars(t)}"><span>${t.emoji}</span></a>
-        <div><div class="name">${esc(t.name)}</div><div class="detail">${okByTopic(t.id).length} source${okByTopic(t.id).length === 1 ? '' : 's'} · ${t.available} recent item${t.available === 1 ? '' : 's'}${badByTopic(t.id).length ? ` · <span style="color:var(--like)">${badByTopic(t.id).length} unreachable</span>` : ''}</div></div>
+        <div><div class="name">${esc(t.name)}${t.wildcard ? ' <span class="wild-tag">🎲 wildcard</span>' : ''}</div><div class="detail">${t.wildcard ? `${esc(t.why || 'This build\'s surprise.')}<br>` : ''}${okByTopic(t.id).length} source${okByTopic(t.id).length === 1 ? '' : 's'} · ${t.available} recent item${t.available === 1 ? '' : 's'}${badByTopic(t.id).length ? ` · <span style="color:var(--like)">${badByTopic(t.id).length} unreachable</span>` : ''}</div></div>
         <div class="num">${t.count}</div>
       </li>`).join('')}</ul>
     <details class="sources"><summary>Sources (${totalSources})</summary><ul>

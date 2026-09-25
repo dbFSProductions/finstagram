@@ -284,6 +284,11 @@ svg { display: block; }
   font-size: 10px; letter-spacing: 0.3px; text-transform: uppercase;
   color: var(--text-3);
 }
+.wild-why { font-size: 13px; color: var(--text-2); margin-bottom: 4px; font-style: italic; }
+.wild-tag { font-size: 11px; font-weight: 500; color: var(--text-2); margin-left: 4px; }
+.post.practice .post-card .card-source { text-transform: none; letter-spacing: 0; font-size: 14px; font-weight: 600; opacity: 1; }
+.post.practice .post-links { margin-top: 10px; }
+.post.practice .post-links .btn { color: #fff; }
 .audio-wrap { padding: 8px 14px 0; }
 .audio-wrap audio { width: 100%; height: 36px; }
 

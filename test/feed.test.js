@@ -48,12 +48,30 @@ test('buildFeed pulls mock feeds end to end', async () => {
   const mock = await startMockFeeds();
   try {
     const logs = [];
-    const feed = await buildFeed({ interestsFile: mock.interestsFile, images: false, log: (m) => logs.push(m) });
-    assert.ok(feed.posts.length > 20, `got ${feed.posts.length} posts`);
-    assert.ok(feed.posts.length <= 40);
+    const feed = await buildFeed({ interestsFile: mock.interestsFile, images: false, log: (m) => logs.push(m), random: () => 0.42 });
+    const regular = feed.posts.filter((p) => !p.kind && !p.wildcard);
+    assert.ok(regular.length > 20, `got ${regular.length} posts`);
+    assert.ok(regular.length <= 40);
+    assert.equal(feed.postCount, regular.length);
     assert.equal(feed.sources.failed.length, feed.topics.length, 'one dead feed per topic is reported');
     const ids = new Set(feed.posts.map((p) => p.id));
     assert.equal(ids.size, feed.posts.length, 'no duplicate posts');
+
+    const wildTopic = feed.topics.find((t) => t.wildcard);
+    assert.equal(wildTopic?.id, 'wild-synth-diy', 'the wildcard interest is listed');
+    assert.deepEqual(wildTopic.between, ['electronics', 'guitar']);
+    const wildPosts = feed.posts.filter((p) => p.wildcard);
+    assert.equal(wildPosts.length, 1, 'exactly one wildcard slot');
+    assert.deepEqual(wildPosts[0].wildcard.between, ['Electronics', 'Guitar FX'], 'wildcard names the topics it sits between');
+    assert.ok(feed.posts.indexOf(wildPosts[0]) >= 2, 'wildcard is not at the very top');
+    assert.equal(feed.topics.filter((t) => !t.wildcard).some((t) => t.id === 'wild-synth-diy'), false);
+
+    const cards = feed.posts.filter((p) => p.kind === 'card');
+    assert.equal(cards.length, 1, 'one practice card');
+    assert.equal(cards[0].source, 'Xerra');
+    assert.match(cards[0].url, /listen-record-learn/);
+    assert.ok(cards[0].title && cards[0].cta, 'card has a message and a call to action');
+    assert.ok(feed.posts.indexOf(cards[0]) >= 2 && feed.posts.indexOf(cards[0]) <= 12, 'card lands near the top');
     const arxiv = feed.posts.find((p) => p.source.startsWith('arXiv'));
     assert.ok(arxiv, 'arXiv item present');
     assert.ok(!/Announce Type/.test(arxiv.summary), 'arXiv boilerplate stripped');
@@ -63,7 +81,7 @@ test('buildFeed pulls mock feeds end to end', async () => {
     assert.ok(feed.topics.every((t) => t.count > 0), 'every topic represented: ' + JSON.stringify(feed.topics.map((t) => [t.id, t.count])));
     for (const p of feed.posts) {
       assert.match(p.url, /^https?:\/\//);
-      assert.ok(p.title && p.source && p.topic);
+      assert.ok(p.title && p.source && (p.topic || p.kind === 'card'));
     }
   } finally {
     await mock.close();

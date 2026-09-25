@@ -124,6 +124,12 @@ const SAMPLE = {
       ['DIY: a Tube Screamer clone with a proper bass control', 'Vero layout, parts list, and why the stock circuit is so bright.', false],
     ],
   },
+  'wild-synth-diy': {
+    'Synthtopia': [
+      ['A Eurorack oscillator you can build in an evening', 'Through-hole, one chip, and a sawtooth that sounds far bigger than the parts list suggests.', true],
+      ['Generative patching for people who hate patching', 'Three modules, one clock, and a way of working that gets out of your way.', false],
+    ],
+  },
   'menswear-tailored': {
     "Gentleman's Gazette": [
       ['How a bespoke suit is actually made', 'From the first fitting to the finished baste: a walk through a Savile Row workroom and why the canvas matters.', true],
@@ -221,10 +227,15 @@ export async function startMockFeeds() {
 
   // Real interests.json for names/emoji/weights, mock URLs for feeds.
   const real = JSON.parse(await fs.readFile(new URL('../interests.json', import.meta.url), 'utf8'));
+  const mockFeeds = (id) => (topics.find((m) => m.id === id)?.feeds || []).map((f) => ({ ...f, url: baseUrl + f.url }));
   const cfg = {
     ...real,
     maxAgeDays: 30,
-    topics: real.topics.map((t) => ({ ...t, feeds: (topics.find((m) => m.id === t.id)?.feeds || []).map((f) => ({ ...f, url: baseUrl + f.url })) })),
+    topics: real.topics.map((t) => ({ ...t, feeds: mockFeeds(t.id) })),
+    wildcards: {
+      slots: 1,
+      topics: [{ id: 'wild-synth-diy', name: 'Synth DIY', emoji: '🎛️', gradient: ['#11998e', '#f7971e'], between: ['electronics', 'guitar'], why: 'Electronics plus guitar effects, one step sideways.', feeds: mockFeeds('wild-synth-diy') }],
+    },
   };
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'finsta-'));
   const interestsFile = path.join(dir, 'interests.json');

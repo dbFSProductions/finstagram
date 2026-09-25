@@ -44,7 +44,7 @@ export function extractOgImage(html, baseUrl) {
 }
 
 export async function enrichImages(posts, { log = () => {} } = {}) {
-  const todo = posts.filter((p) => !p.image && /^https?:\/\//.test(p.url) && !SKIP_HOSTS.test(safeHost(p.url)));
+  const todo = posts.filter((p) => !p.image && !p.kind && /^https?:\/\//.test(p.url) && !SKIP_HOSTS.test(safeHost(p.url)));
   if (!todo.length) return posts;
   log(`Looking up preview images for ${todo.length} posts…`);
   let idx = 0;
