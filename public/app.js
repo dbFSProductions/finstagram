@@ -445,17 +445,12 @@ async function openReader(p) {
   document.body.classList.add('no-scroll');
   $reader.querySelector('[data-reader="close"]').focus({ preventScroll: true });
 
-  const NO_SERVER = 'The reader needs the Finstagram server running';
   let article;
   try {
-    const res = await fetch(`api/article?id=${encodeURIComponent(p.id)}&url=${encodeURIComponent(p.url)}`, { cache: 'no-store' });
-    if (!/json/i.test(res.headers.get('content-type') || '')) throw new Error(NO_SERVER); // static host: no API behind it
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
-    article = data;
+    article = await loadArticle(p);
   } catch (e) {
     if (readerPost !== p) return;
-    $reader.querySelector('#reader-body').innerHTML = readerFallback(p, e instanceof TypeError ? NO_SERVER : e.message);
+    $reader.querySelector('#reader-body').innerHTML = readerFallback(p, e instanceof TypeError ? 'Could not reach the reader' : e.message);
     $reader.querySelector('.reader-foot').remove();
     return;
   }
@@ -471,6 +466,20 @@ async function openReader(p) {
   const minutes = Math.max(1, Math.round((article.length || 0) / 1100));
   const byline = [article.byline || p.author, longDate(p.publishedAt || article.publishedTime), `${minutes} min read`].filter(Boolean);
   $reader.querySelector('#reader-byline').textContent = byline.join(' · ');
+}
+
+// Live server first; on a static host (no API, the 404 comes back as HTML)
+// use the copy captured by `npm run build` under articles/.
+async function loadArticle(p) {
+  const res = await fetch(`api/article?id=${encodeURIComponent(p.id)}&url=${encodeURIComponent(p.url)}`, { cache: 'no-store' });
+  if (/json/i.test(res.headers.get('content-type') || '')) {
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+    return data;
+  }
+  const built = await fetch(`articles/${encodeURIComponent(p.id)}.json`, { cache: 'no-store' });
+  if (!built.ok || !/json/i.test(built.headers.get('content-type') || '')) throw new Error('This article was not captured in the last build');
+  return built.json();
 }
 
 function closeReader({ pop = true } = {}) {

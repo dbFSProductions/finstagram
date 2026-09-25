@@ -2,6 +2,8 @@
 // with Mozilla's Readability, so a post can be read in-app without the
 // source site's cookie wall, ad slots and navigation chrome.
 
+import fs from 'node:fs/promises';
+import path from 'node:path';
 import { Readability } from '@mozilla/readability';
 import { parseHTML } from 'linkedom';
 
@@ -64,4 +66,32 @@ export async function fetchArticle(url) {
   const article = extractArticle(html, finalUrl);
   if (!article) throw new Error('no readable article found');
   return article;
+}
+
+// Static builds have no server to extract on demand, so capture every post's
+// article at build time as <dir>/<post id>.json. Best effort: a page that
+// can't be read is skipped and the app falls back to the original link.
+export async function prefetchArticles(posts, dir, { log = () => {}, concurrency = 6 } = {}) {
+  const todo = posts.filter((p) => !p.kind && /^https?:\/\//.test(p.url));
+  await fs.rm(dir, { recursive: true, force: true });
+  await fs.mkdir(dir, { recursive: true });
+  log(`Capturing articles for ${todo.length} posts…`);
+  let idx = 0;
+  let captured = 0;
+  await Promise.all(
+    Array.from({ length: Math.min(concurrency, todo.length) }, async () => {
+      while (idx < todo.length) {
+        const post = todo[idx++];
+        try {
+          const article = await fetchArticle(post.url);
+          await fs.writeFile(path.join(dir, `${post.id}.json`), JSON.stringify(article));
+          captured++;
+        } catch (err) {
+          log(`  ✗ ${post.url} — ${err.message}`);
+        }
+      }
+    }),
+  );
+  log(`  captured ${captured}/${todo.length}`);
+  return captured;
 }

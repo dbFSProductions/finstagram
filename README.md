@@ -40,8 +40,9 @@ Options:
 
 `npm run build` writes `public/feed.json`. The `public/` folder is then a static
 site: host it anywhere (GitHub Pages, a Raspberry Pi, a folder on your Mac) and
-the app reads the JSON directly. Without the server there is nothing to fetch
-article pages, so the reader view falls back to a link to the original site. The included workflow in `.github/workflows/pages.yml`
+the app reads the JSON directly. The build also captures each post's article into
+`public/articles/<id>.json`, so the reader view works on a static host too; a
+page that couldn't be read at build time falls back to a link to the original site. The included workflow in `.github/workflows/pages.yml`
 rebuilds the feed every six hours and publishes to GitHub Pages, if you turn Pages on
 for the repo (Settings → Pages → Source: GitHub Actions).
 
@@ -114,9 +115,10 @@ Both ride on top of the 40, not inside it.
 * **Bookmark** keeps a post past the next refresh. Saved posts live under the bookmark tab.
 * **Paper plane** opens the iOS share sheet (or copies the link on desktop).
 * **Speech bubble**, the picture, the title, or the ⋯ menu open the article in the
-  built-in reader: the server fetches the page and keeps just the body text and
-  pictures, so no cookie wall, no ad slots. The link icon at the top of the reader,
-  or **Read on …** under a post, opens the original site instead.
+  built-in reader: the page is fetched (by the server, or at build time for the
+  static site) and reduced to just the body text and pictures, so no cookie wall,
+  no ad slots. The link icon at the top of the reader, or **Read on …** under a
+  post, opens the original site instead.
 * **Story circles** at the top filter the feed to one interest. Tap **All** to go back.
 * **Search** shows the whole feed as a grid and filters it as you type.
 * **Interests** shows every topic, how many posts it got, and which sources answered.

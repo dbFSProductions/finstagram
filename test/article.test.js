@@ -1,7 +1,10 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import http from 'node:http';
-import { extractArticle, fetchArticle } from '../src/article.js';
+import fs from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
+import { extractArticle, fetchArticle, prefetchArticles } from '../src/article.js';
 
 const PARA = '<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco.</p>';
 const PAGE = `<!doctype html><html><head><title>A Story · Some Site</title><meta name="author" content="Jo Bloggs"></head><body>
@@ -44,6 +47,19 @@ test('fetchArticle pulls a page over HTTP and rejects non-HTML responses', async
     assert.match(a.content, /Lorem ipsum/);
     await assert.rejects(fetchArticle(`${base}/data`), /not an HTML page/);
     await assert.rejects(fetchArticle(`${base}/missing`), /HTTP 404/);
+
+    const dir = path.join(await fs.mkdtemp(path.join(os.tmpdir(), 'finsta-articles-')), 'articles');
+    await fs.mkdir(dir, { recursive: true });
+    await fs.writeFile(path.join(dir, 'stale.json'), '{}');
+    const posts = [
+      { id: 'ok1', url: `${base}/story` },
+      { id: 'gone', url: `${base}/missing` },
+      { id: 'card-x', kind: 'card', url: `${base}/story` },
+    ];
+    const captured = await prefetchArticles(posts, dir, { concurrency: 2 });
+    assert.equal(captured, 1);
+    assert.deepEqual((await fs.readdir(dir)).sort(), ['ok1.json'], 'captures readable posts, skips failures and cards, clears stale files');
+    assert.match(JSON.parse(await fs.readFile(path.join(dir, 'ok1.json'), 'utf8')).content, /Lorem ipsum/);
   } finally {
     await new Promise((r) => server.close(r));
   }
