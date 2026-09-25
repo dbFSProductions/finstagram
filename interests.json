@@ -40,7 +40,7 @@
           "name": "Simon Willison"
         },
         {
-          "url": "https://importai.substack.com/feed",
+          "url": "https://jack-clark.net/feed/",
           "name": "Import AI"
         },
         {
@@ -97,7 +97,7 @@
           "name": "Quanta Magazine"
         },
         {
-          "url": "https://physics.aps.org/feed/",
+          "url": "https://feeds.aps.org/rss/recent/physics.xml",
           "name": "APS Physics"
         },
         {
@@ -232,7 +232,7 @@
           "name": "The Partially Examined Life"
         },
         {
-          "url": "https://philosophybites.com/atom.xml",
+          "url": "https://philosophybites.libsyn.com/rss",
           "name": "Philosophy Bites"
         },
         {
@@ -281,7 +281,7 @@
           "name": "Warp, Weft, and Way"
         },
         {
-          "url": "https://chinahistorypodcast.com/feed/",
+          "url": "https://chinahistorypodcast.libsyn.com/rss",
           "name": "The China History Podcast"
         },
         {
@@ -391,8 +391,8 @@
           "name": "Zen Studies Podcast"
         },
         {
-          "url": "https://sweepingzen.com/feed/",
-          "name": "Sweeping Zen"
+          "url": "https://www.zendust.org/feed",
+          "name": "Zen Community of Oregon"
         },
         {
           "url": "https://www.upaya.org/feed/podcast/",
@@ -514,8 +514,8 @@
           "name": "Following Hadrian"
         },
         {
-          "url": "https://www.heritagedaily.com/feed",
-          "name": "HeritageDaily",
+          "url": "https://www.smithsonianmag.com/rss/history/",
+          "name": "Smithsonian History",
           "include": [
             "Roman",
             "Rome",
@@ -642,8 +642,19 @@
           "name": "Effects Bay"
         },
         {
-          "url": "https://pedaloftheday.com/feed/",
-          "name": "Pedal of the Day"
+          "url": "https://www.guitarplayer.com/feeds/all",
+          "name": "Guitar Player",
+          "include": [
+            "pedal",
+            "effect",
+            "fuzz",
+            "overdrive",
+            "delay",
+            "reverb",
+            "distortion",
+            "modulation",
+            "stompbox"
+          ]
         },
         {
           "url": "https://www.premierguitar.com/feeds/feed.rss",
@@ -741,8 +752,8 @@
           "name": "Language Log"
         },
         {
-          "url": "https://www.etymonline.com/columns/rss",
-          "name": "Etymonline"
+          "url": "https://wordhistories.net/feed/",
+          "name": "Word Histories"
         },
         {
           "url": "https://blog.oup.com/category/language-words/feed/",
@@ -753,8 +764,8 @@
           "name": "Word of the Day"
         },
         {
-          "url": "https://www.lexiconvalley.com/feed",
-          "name": "Lexicon Valley"
+          "url": "https://allthingslinguistic.com/rss",
+          "name": "All Things Linguistic"
         },
         {
           "url": "https://historyofenglishpodcast.com/feed/",
@@ -771,8 +782,18 @@
           ]
         },
         {
-          "url": "https://www.thoughtco.com/spanish-4133084.rss",
-          "name": "ThoughtCo Spanish"
+          "url": "https://www.lingq.com/blog/feed/",
+          "name": "LingQ",
+          "include": [
+            "Spanish",
+            "Italian",
+            "French",
+            "Portuguese",
+            "Romanian",
+            "Catalan",
+            "Romance",
+            "Latin"
+          ]
         },
         {
           "url": "https://aeon.co/feed.rss",
@@ -837,8 +858,8 @@
           "name": "James Clear"
         },
         {
-          "url": "https://www.oliverburkeman.com/so/feed",
-          "name": "Oliver Burkeman"
+          "url": "https://austinkleon.com/feed/",
+          "name": "Austin Kleon"
         },
         {
           "url": "https://fs.blog/feed/",
@@ -857,12 +878,12 @@
           "name": "Ness Labs"
         },
         {
-          "url": "https://zenhabits.net/feed/",
-          "name": "Zen Habits"
+          "url": "https://www.scotthyoung.com/blog/feed/",
+          "name": "Scott H Young"
         },
         {
-          "url": "https://www.anne-laure.info/feed",
-          "name": "Anne-Laure Le Cunff"
+          "url": "https://www.asianefficiency.com/feed/",
+          "name": "Asian Efficiency"
         }
       ]
     }

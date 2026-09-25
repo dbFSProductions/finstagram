@@ -60,6 +60,17 @@ async function fetchText(url, { timeoutMs = FEED_TIMEOUT_MS } = {}) {
   return res.text();
 }
 
+// Some feeds ship bare "&" in text, which is invalid XML. Retry once with them escaped.
+async function parseFeed(xml) {
+  try {
+    return await parser.parseString(xml);
+  } catch (err) {
+    const fixed = xml.replace(/&(?!(?:[a-zA-Z][a-zA-Z0-9]*|#\d+|#x[0-9a-fA-F]+);)/g, '&amp;');
+    if (fixed === xml) throw err;
+    return parser.parseString(fixed);
+  }
+}
+
 // One network request per unique URL, even if two topics share a feed.
 function makeFeedFetcher(log) {
   const inflight = new Map();
@@ -68,7 +79,7 @@ function makeFeedFetcher(log) {
       inflight.set(
         url,
         fetchText(url)
-          .then((xml) => parser.parseString(xml))
+          .then(parseFeed)
           .then((parsed) => ({ ok: true, parsed }))
           .catch((err) => {
             log(`  ✗ ${url} — ${err.message}`);
