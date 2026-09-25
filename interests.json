@@ -918,51 +918,20 @@
       ],
       "feeds": [
         {
-          "url": "https://www.gq.com/feed/rss.xml",
-          "name": "GQ",
-          "include": [
-            "menswear",
-            "suit",
-            "tailoring",
-            "bespoke",
-            "formal wear",
-            "dress code",
-            "style"
-          ]
-        },
-        {
-          "url": "https://www.thegentlemansjournal.com/feed/",
-          "name": "The Gentleman's Journal"
-        },
-        {
           "url": "https://gentlemansgazette.com/feed/",
           "name": "Gentleman's Gazette"
         },
         {
-          "url": "https://www.propercloth.com/blog/feed/",
-          "name": "Proper Cloth"
+          "url": "https://www.permanentstyle.com/feed",
+          "name": "Permanent Style"
         },
         {
-          "url": "https://www.businessoffashion.com/articles/curation/menswear/feed",
-          "name": "Business of Fashion",
-          "include": [
-            "menswear",
-            "tailoring",
-            "suits",
-            "bespoke",
-            "luxury"
-          ]
+          "url": "https://dieworkwear.com/feed/",
+          "name": "Die, Workwear!"
         },
         {
-          "url": "https://www.esquire.com/feed/rss.xml",
-          "name": "Esquire",
-          "include": [
-            "menswear",
-            "suit",
-            "tailoring",
-            "formal wear",
-            "style"
-          ]
+          "url": "https://putthison.com/feed/",
+          "name": "Put This On"
         },
         {
           "url": "https://www.selectism.com/feed/",
@@ -1486,15 +1455,45 @@
         "feeds": [
           {
             "url": "https://www.permanentstyle.com/feed",
-            "name": "Permanent Style"
+            "name": "Permanent Style",
+            "include": [
+              "history",
+              "heritage",
+              "vintage",
+              "archive",
+              "mill",
+              "workshop",
+              "craft",
+              "tradition"
+            ]
           },
           {
             "url": "https://dieworkwear.com/feed/",
-            "name": "Die, Workwear!"
+            "name": "Die, Workwear!",
+            "include": [
+              "history",
+              "heritage",
+              "vintage",
+              "archive",
+              "mill",
+              "workshop",
+              "craft",
+              "tradition"
+            ]
           },
           {
             "url": "https://putthison.com/feed/",
-            "name": "Put This On"
+            "name": "Put This On",
+            "include": [
+              "history",
+              "heritage",
+              "vintage",
+              "archive",
+              "mill",
+              "workshop",
+              "craft",
+              "tradition"
+            ]
           }
         ]
       },
