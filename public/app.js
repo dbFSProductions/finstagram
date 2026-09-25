@@ -5,6 +5,8 @@ const FEED_URLS = ['api/feed', 'feed.json'];
 const STORE_LIKES = 'finsta.likes';
 const STORE_SAVED = 'finsta.saved';
 const STORE_SEEN = 'finsta.seenTopics';
+const STORE_RELOADED = 'finsta.reloadedFor';
+const RESUME_CHECK_MS = 60 * 1000;
 
 /* ---------- icons (inline SVG, Instagram-ish line style) ---------- */
 const I = {
@@ -30,6 +32,8 @@ const state = {
   loading: true,
   view: 'home',
   feedSource: null,   // 'api' (live server) or 'static' (feed.json from a build)
+  appVersion: null,   // fingerprint of the app.js actually running, for the static-site update check
+  loadedAt: 0,
   topicFilter: null,
   query: '',
   likes: new Set(load(STORE_LIKES, [])),
@@ -116,11 +120,13 @@ async function loadFeed({ refresh = false } = {}) {
       if (!Array.isArray(feed.posts)) throw new Error(`${base}: not a feed`);
       state.feed = feed;
       state.feedSource = base.startsWith('api') ? 'api' : 'static';
+      state.loadedAt = Date.now();
       state.loading = false;
       $refresh.classList.remove('spinning');
       $refresh.title = refreshLabel();
       $refresh.setAttribute('aria-label', refreshLabel());
       render();
+      updateAppIfStale(feed);
       return;
     } catch (e) {
       errors.push(e.message);
@@ -141,27 +147,67 @@ async function refreshFeed() {
     return loadFeed({ refresh: true });
   }
   toast('Checking for a newer feed…');
+  await checkStaticFeed({ silent: false });
+}
+
+async function checkStaticFeed({ silent }) {
   $refresh.classList.add('spinning');
   try {
     const res = await fetch(`feed.json?_=${Date.now()}`, { cache: 'no-store' });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const feed = await res.json();
     if (!Array.isArray(feed.posts)) throw new Error('not a feed');
+    if (await updateAppIfStale(feed)) return;
     if (feed.generatedAt === state.feed.generatedAt) {
       const due = nextBuild(feed);
-      toast(`Already up to date · built ${clock(feed.generatedAt)}${due ? `, next build about ${clock(due)}` : ''}`, 3200);
+      if (!silent) toast(`Already up to date · built ${clock(feed.generatedAt)}${due ? `, next build about ${clock(due)}` : ''}`, 3200);
     } else {
       state.feed = feed;
+      state.loadedAt = Date.now();
       state.expanded.clear();
       render();
       window.scrollTo({ top: 0 });
       toast(`Newer feed, built ${clock(feed.generatedAt)}`);
     }
   } catch {
-    toast('Could not check for a newer feed');
+    if (!silent) toast('Could not check for a newer feed');
   }
   $refresh.classList.remove('spinning');
 }
+
+// A home-screen web app resumes the page it had rather than reloading, and
+// Safari caches app.js besides, so a new build can sit unseen for days. The
+// build stamps a fingerprint of app.js into feed.json; when it stops matching
+// the script that is running, refetch past the cache and reload, once.
+async function runningAppVersion() {
+  if (state.appVersion) return state.appVersion;
+  try {
+    const buf = await (await fetch(import.meta.url)).arrayBuffer();
+    const digest = await crypto.subtle.digest('SHA-1', buf);
+    state.appVersion = [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, '0')).join('').slice(0, 12);
+  } catch { /* no crypto.subtle (plain http on a LAN): skip the check */ }
+  return state.appVersion;
+}
+
+async function updateAppIfStale(feed) {
+  if (!feed?.appVersion || state.feedSource !== 'static') return false;
+  const running = await runningAppVersion();
+  if (!running || running === feed.appVersion) return false;
+  let reloadedFor = null;
+  try { reloadedFor = sessionStorage.getItem(STORE_RELOADED); } catch { /* private mode */ }
+  if (reloadedFor === feed.appVersion) return false;
+  try { sessionStorage.setItem(STORE_RELOADED, feed.appVersion); } catch { /* private mode */ }
+  toast('Updating Finstagram…', 5000);
+  await Promise.all(['app.js', 'style.css', location.pathname].map((u) => fetch(u, { cache: 'reload' }).catch(() => {})));
+  location.reload();
+  return true;
+}
+
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState !== 'visible' || state.feedSource !== 'static' || !state.feed) return;
+  if (Date.now() - state.loadedAt < RESUME_CHECK_MS || readerPost) return;
+  checkStaticFeed({ silent: true });
+});
 
 /* ---------- rendering ---------- */
 function renderTabs() {
