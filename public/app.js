@@ -20,6 +20,7 @@ const I = {
   check: '<svg viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>',
   link: '<svg viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1.5 1.5"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1.5-1.5"/></svg>',
   play: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>',
+  close: '<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg>',
 };
 
 /* ---------- state ---------- */
@@ -50,6 +51,7 @@ function persist() {
 const $view = document.getElementById('view');
 const $toast = document.getElementById('toast');
 const $refresh = document.getElementById('refresh-btn');
+const $reader = document.getElementById('reader');
 $refresh.innerHTML = I.refresh;
 
 /* ---------- helpers ---------- */
@@ -175,6 +177,7 @@ function renderCaughtUp(shown) {
 }
 
 function renderPost(p, { compact = false } = {}) {
+  if (p.kind === 'card') return renderPracticeCard(p);
   const t = topicOf(p.topic);
   const liked = state.likes.has(p.id);
   const saved = state.saved.has(p.id);
@@ -182,9 +185,11 @@ function renderPost(p, { compact = false } = {}) {
   const media = p.image
     ? `<img src="${esc(p.image)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" >`
     : renderCard(p, t);
-  const badge = p.audio ? `<span class="badge">🎧 Podcast</span>` : '';
-  const sub = [t.name, p.author ? esc(p.author) : null, host(p.url)].filter(Boolean).join(' · ');
-  return `<article class="post" id="post-${p.id}" data-id="${p.id}">
+  const badge = p.audio ? `<span class="badge">🎧 Podcast</span>` : p.wildcard ? `<span class="badge">🎲 Wildcard</span>` : '';
+  const sub = p.wildcard
+    ? `🎲 Because you like ${p.wildcard.between.map(esc).join(' and ') || 'what you like'}`
+    : [t.name, p.author ? esc(p.author) : null, host(p.url)].filter(Boolean).join(' · ');
+  return `<article class="post ${p.wildcard ? 'wild' : ''}" id="post-${p.id}" data-id="${p.id}">
     <header class="post-head">
       <a class="avatar" style="${gradVars(t)}" data-action="filter" data-topic="${t.id}" href="#home" aria-label="${esc(t.name)}"><span>${t.emoji}</span></a>
       <div class="post-meta">
@@ -203,7 +208,8 @@ function renderPost(p, { compact = false } = {}) {
     </div>
     <div class="post-body">
       ${liked ? `<div class="post-likes">Liked by you</div>` : ''}
-      <div class="post-caption"><b>${esc(p.source)}</b> <a href="${esc(p.url)}" target="_blank" rel="noopener" class="title">${esc(p.title)}</a>
+      ${p.wildcard?.why ? `<div class="wild-why">${esc(p.wildcard.why)}</div>` : ''}
+      <div class="post-caption"><b>${esc(p.source)}</b> <a href="${esc(p.url)}" data-action="open" class="title">${esc(p.title)}</a>
         ${p.summary ? `<div class="summary ${expanded ? '' : 'clamped'}">${esc(p.summary)}</div>${p.summary.length > 110 && !expanded ? `<button class="more-btn" data-action="expand">more</button>` : ''}` : ''}
       </div>
       ${p.audio && expanded ? `<div class="audio-wrap"><audio controls preload="none" src="${esc(p.audio)}"></audio></div>` : ''}
@@ -215,6 +221,27 @@ function renderPost(p, { compact = false } = {}) {
 
 function renderCard(p, t) {
   return `<div class="post-card" style="${gradVars(t)}"><div class="emoji">${t.emoji}</div><div class="card-title">${esc(p.title)}</div><div class="card-source">${esc(p.source)}</div></div>`;
+}
+
+// A nudge towards another app (Xerra and friends). Plain links out, no reader, no like.
+function renderPracticeCard(p) {
+  const g = { gradient: p.gradient, emoji: p.emoji, name: p.source };
+  return `<article class="post practice" id="post-${p.id}" data-id="${p.id}">
+    <header class="post-head">
+      <a class="avatar" style="${gradVars(g)}" href="${esc(p.url)}" target="_blank" rel="noopener" aria-label="${esc(p.source)}"><span>${p.emoji}</span></a>
+      <div class="post-meta">
+        <div class="post-source">${esc(p.source)} <span class="dot">·</span> <span class="dot">practice</span></div>
+        <div class="post-sub">${esc(host(p.url))}</div>
+      </div>
+    </header>
+    <a class="post-media square" href="${esc(p.url)}" target="_blank" rel="noopener">
+      <div class="post-card" style="${gradVars(g)}"><div class="emoji">${p.emoji}</div><div class="card-title">${esc(p.title)}</div><div class="card-source">${esc(p.cta)} →</div></div>
+    </a>
+    <div class="post-body">
+      <div class="post-caption"><b>${esc(p.source)}</b> ${esc(p.summary)}</div>
+      <div class="post-links"><a class="btn" href="${esc(p.url)}" target="_blank" rel="noopener">${esc(p.cta)}</a></div>
+    </div>
+  </article>`;
 }
 
 function renderCollection(kind) {
@@ -230,7 +257,7 @@ function renderCollection(kind) {
 
 function renderSearch() {
   const q = state.query.trim().toLowerCase();
-  const posts = state.feed.posts.filter((p) => !q || `${p.title} ${p.summary} ${p.source} ${topicOf(p.topic).name}`.toLowerCase().includes(q));
+  const posts = state.feed.posts.filter((p) => p.kind !== 'card' && (!q || `${p.title} ${p.summary} ${p.source} ${topicOf(p.topic).name}`.toLowerCase().includes(q)));
   return `<div class="search-bar"><input type="search" id="q" placeholder="Search your ${state.feed.posts.length} posts" value="${esc(state.query)}" autocomplete="off" autocorrect="off" autocapitalize="off"></div>
     ${posts.length ? '' : `<div class="empty"><h2>No results</h2><p>Nothing in this feed matches “${esc(state.query)}”.</p></div>`}
     <div class="grid">${posts.map((p) => {
@@ -248,8 +275,8 @@ function renderProfile() {
     <div class="profile-head">
       <div class="profile-avatar"><div>🪴</div></div>
       <div class="stats">
-        <div><b>${f.posts.length}</b><span>posts</span></div>
-        <div><b>${f.topics.length}</b><span>interests</span></div>
+        <div><b>${f.postCount ?? f.posts.length}</b><span>posts</span></div>
+        <div><b>${f.topics.filter((t) => !t.wildcard).length}</b><span>interests</span></div>
         <div><b>${f.sources.ok.length}</b><span>sources</span></div>
       </div>
     </div>
@@ -257,7 +284,7 @@ function renderProfile() {
     <ul class="interest-list">${f.topics.map((t) => `
       <li class="interest">
         <a class="avatar" href="#home" data-action="filter" data-topic="${t.id}" style="${gradVars(t)}"><span>${t.emoji}</span></a>
-        <div><div class="name">${esc(t.name)}</div><div class="detail">${okByTopic(t.id).length} source${okByTopic(t.id).length === 1 ? '' : 's'} · ${t.available} recent item${t.available === 1 ? '' : 's'}${badByTopic(t.id).length ? ` · <span style="color:var(--like)">${badByTopic(t.id).length} unreachable</span>` : ''}</div></div>
+        <div><div class="name">${esc(t.name)}${t.wildcard ? ' <span class="wild-tag">🎲 wildcard</span>' : ''}</div><div class="detail">${t.wildcard ? `${esc(t.why || 'This build\'s surprise.')}<br>` : ''}${okByTopic(t.id).length} source${okByTopic(t.id).length === 1 ? '' : 's'} · ${t.available} recent item${t.available === 1 ? '' : 's'}${badByTopic(t.id).length ? ` · <span style="color:var(--like)">${badByTopic(t.id).length} unreachable</span>` : ''}</div></div>
         <div class="num">${t.count}</div>
       </li>`).join('')}</ul>
     <details class="sources"><summary>Sources (${totalSources})</summary><ul>
@@ -319,8 +346,159 @@ async function share(p) {
   }
 }
 
+/* ---------- reader view ---------- */
+// Articles are fetched by the server and boiled down to their body text, so
+// they open here instead of on the source site with its consent wall and ads.
+// The extracted HTML is untrusted: it is rebuilt through an allowlist below.
+
+const READER_TAGS = {
+  p: [], br: [], hr: [], h1: [], h2: [], h3: [], h4: [], h5: [], h6: [],
+  ul: [], ol: ['start'], li: [], dl: [], dt: [], dd: [],
+  blockquote: [], pre: [], code: [], em: [], strong: [], b: [], i: [], u: [], s: [], mark: [], small: [], sup: [], sub: [], q: [], cite: [], abbr: ['title'],
+  a: ['href', 'title'], img: ['src', 'alt', 'width', 'height'],
+  figure: [], figcaption: [], table: [], thead: [], tbody: [], tfoot: [], tr: [], th: ['colspan', 'rowspan'], td: ['colspan', 'rowspan'],
+  time: ['datetime'], div: [], section: [], article: [], span: [],
+};
+const READER_DROP = new Set(['script', 'style', 'iframe', 'object', 'embed', 'form', 'input', 'button', 'select', 'textarea', 'svg', 'math', 'noscript', 'template', 'link', 'meta', 'video', 'audio', 'canvas', 'nav', 'aside', 'footer', 'header']);
+
+function safeUrl(value, base) {
+  try {
+    const u = new URL(value, base);
+    return /^https?:$/.test(u.protocol) ? u.href : null;
+  } catch { return null; }
+}
+
+function sanitizeNode(node, base) {
+  if (node.nodeType === Node.TEXT_NODE) return document.createTextNode(node.data);
+  if (node.nodeType !== Node.ELEMENT_NODE) return null;
+  const tag = node.localName;
+  if (READER_DROP.has(tag)) return null;
+  const attrs = READER_TAGS[tag];
+  const out = attrs ? document.createElement(tag) : document.createDocumentFragment();
+  if (attrs) {
+    for (const name of attrs) {
+      let v = node.getAttribute(name);
+      if (v == null) continue;
+      if (name === 'href' || name === 'src') v = safeUrl(v, base);
+      if (v != null) out.setAttribute(name, v);
+    }
+    if (tag === 'a') { out.target = '_blank'; out.rel = 'noopener noreferrer'; }
+    if (tag === 'img') {
+      if (!out.getAttribute('src')) return null;
+      out.loading = 'lazy';
+      out.decoding = 'async';
+      out.referrerPolicy = 'no-referrer';
+    }
+  }
+  for (const child of node.childNodes) {
+    const c = sanitizeNode(child, base);
+    if (c) out.append(c);
+  }
+  return out;
+}
+
+function sanitizeArticle(html, base) {
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  const frag = document.createDocumentFragment();
+  for (const n of doc.body.childNodes) {
+    const c = sanitizeNode(n, base);
+    if (c) frag.append(c);
+  }
+  return frag;
+}
+
+let readerPost = null;
+
+function readerShell(p, body) {
+  const t = topicOf(p.topic);
+  return `<div class="reader-sheet">
+    <header class="reader-bar">
+      <button class="icon-btn" data-reader="close" aria-label="Close">${I.close}</button>
+      <div class="reader-host">${esc(host(p.url))}</div>
+      <a class="icon-btn" href="${esc(p.url)}" target="_blank" rel="noopener" aria-label="Open original" title="Open original">${I.link}</a>
+    </header>
+    <div class="reader-scroll"><article class="reader-article">
+      <div class="reader-kicker" style="${gradVars(t)}"><span class="reader-dot"></span>${esc(p.source)} · ${t.emoji} ${esc(t.name)}</div>
+      <h1 class="reader-title">${esc(p.title)}</h1>
+      <div class="reader-byline" id="reader-byline">${[p.author ? esc(p.author) : null, longDate(p.publishedAt)].filter(Boolean).join(' · ')}</div>
+      <div class="reader-body" id="reader-body">${body}</div>
+      <div class="reader-foot"><a class="btn ghost" href="${esc(p.url)}" target="_blank" rel="noopener">Read on ${esc(host(p.url))}</a></div>
+    </article></div>
+  </div>`;
+}
+
+function readerSkeleton() {
+  return `<div class="reader-skel">${['92%', '100%', '78%', '96%', '60%', '100%', '88%'].map((w) => `<div class="bar" style="width:${w}"></div>`).join('')}</div>`;
+}
+
+function readerFallback(p, why) {
+  return `<div class="reader-fallback"><div class="glyph">🪟</div><h2>Couldn't open this one here</h2>
+    <p>${esc(why)}. You can still read it on the site.</p>
+    <a class="btn" href="${esc(p.url)}" target="_blank" rel="noopener">Read on ${esc(host(p.url))}</a></div>`;
+}
+
+async function openReader(p) {
+  if (!readerPost) history.pushState({ reader: p.id }, '', location.href);
+  readerPost = p;
+  $reader.innerHTML = readerShell(p, readerSkeleton());
+  $reader.hidden = false;
+  document.body.classList.add('no-scroll');
+  $reader.querySelector('[data-reader="close"]').focus({ preventScroll: true });
+
+  let article;
+  try {
+    article = await loadArticle(p);
+  } catch (e) {
+    if (readerPost !== p) return;
+    $reader.querySelector('#reader-body').innerHTML = readerFallback(p, e instanceof TypeError ? 'Could not reach the reader' : e.message);
+    $reader.querySelector('.reader-foot').remove();
+    return;
+  }
+  if (readerPost !== p) return;
+  const body = $reader.querySelector('#reader-body');
+  const frag = sanitizeArticle(article.content, article.url || p.url);
+  if (p.image && !frag.querySelector('img')) {
+    const hero = document.createElement('img');
+    hero.src = p.image; hero.alt = ''; hero.className = 'reader-hero'; hero.referrerPolicy = 'no-referrer';
+    frag.prepend(hero);
+  }
+  body.replaceChildren(frag);
+  const minutes = Math.max(1, Math.round((article.length || 0) / 1100));
+  const byline = [article.byline || p.author, longDate(p.publishedAt || article.publishedTime), `${minutes} min read`].filter(Boolean);
+  $reader.querySelector('#reader-byline').textContent = byline.join(' · ');
+}
+
+// Live server first; on a static host (no API, the 404 comes back as HTML)
+// use the copy captured by `npm run build` under articles/.
+async function loadArticle(p) {
+  const res = await fetch(`api/article?id=${encodeURIComponent(p.id)}&url=${encodeURIComponent(p.url)}`, { cache: 'no-store' });
+  if (/json/i.test(res.headers.get('content-type') || '')) {
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+    return data;
+  }
+  const built = await fetch(`articles/${encodeURIComponent(p.id)}.json`, { cache: 'no-store' });
+  if (!built.ok || !/json/i.test(built.headers.get('content-type') || '')) throw new Error('This article was not captured in the last build');
+  return built.json();
+}
+
+function closeReader({ pop = true } = {}) {
+  if (!readerPost) return;
+  readerPost = null;
+  $reader.hidden = true;
+  $reader.innerHTML = '';
+  document.body.classList.remove('no-scroll');
+  if (pop && history.state?.reader) history.back();
+}
+
+$reader.addEventListener('click', (e) => {
+  if (e.target === $reader || e.target.closest('[data-reader="close"]')) closeReader();
+});
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeReader(); });
+window.addEventListener('popstate', () => closeReader({ pop: false }));
+
 function open(p) {
-  window.open(p.url, '_blank', 'noopener');
+  openReader(p);
 }
 
 let tapTimer = null;
@@ -368,7 +546,7 @@ document.addEventListener('click', (e) => {
   if (action === 'like') return toggleLike(p);
   if (action === 'save') return toggleSave(p);
   if (action === 'share') return share(p);
-  if (action === 'open') return open(p);
+  if (action === 'open') { e.preventDefault(); return open(p); }
   if (action === 'media') return onMediaClick(e, p);
   if (action === 'expand') {
     state.expanded.add(p.id);

@@ -37,16 +37,39 @@ export async function loadInterests(file = path.resolve('interests.json')) {
   }
   cfg.postCount = Number(cfg.postCount) || 40;
   cfg.maxAgeDays = Number(cfg.maxAgeDays) || 21;
-  for (const t of cfg.topics) {
-    if (!t.id || !t.name) throw new Error(`Every topic needs an id and a name: ${JSON.stringify(t)}`);
-    t.weight = Number(t.weight) > 0 ? Number(t.weight) : 1;
-    t.emoji = t.emoji || '✨';
-    t.gradient = Array.isArray(t.gradient) && t.gradient.length === 2 ? t.gradient : ['#405de6', '#e1306c'];
-    t.boost = Array.isArray(t.boost) ? t.boost : [];
-    t.feeds = (t.feeds || []).map((f) => (typeof f === 'string' ? { url: f } : f)).filter((f) => f && f.url);
-  }
+  cfg.topics.forEach(normaliseTopic);
+  const ids = new Set(cfg.topics.map((t) => t.id));
+  cfg.wildcards = {
+    slots: Number(cfg.wildcards?.slots) > 0 ? Number(cfg.wildcards.slots) : 1,
+    topics: (Array.isArray(cfg.wildcards?.topics) ? cfg.wildcards.topics : []).map((t) => {
+      normaliseTopic(t);
+      t.between = (Array.isArray(t.between) ? t.between : []).filter((id) => ids.has(id));
+      t.why = t.why || '';
+      return t;
+    }),
+  };
+  cfg.cards = (Array.isArray(cfg.cards) ? cfg.cards : []).filter((c) => c && c.id && /^https?:\/\//i.test(c.url || '')).map((c) => ({
+    id: c.id,
+    name: c.name || c.id,
+    emoji: c.emoji || '✨',
+    gradient: Array.isArray(c.gradient) && c.gradient.length === 2 ? c.gradient : ['#405de6', '#e1306c'],
+    url: c.url,
+    cta: c.cta || 'Open',
+    messages: (Array.isArray(c.messages) ? c.messages : []).filter((m) => m && m.title),
+  }));
   return cfg;
 }
+
+function normaliseTopic(t) {
+  if (!t.id || !t.name) throw new Error(`Every topic needs an id and a name: ${JSON.stringify(t)}`);
+  t.weight = Number(t.weight) > 0 ? Number(t.weight) : 1;
+  t.emoji = t.emoji || '✨';
+  t.gradient = Array.isArray(t.gradient) && t.gradient.length === 2 ? t.gradient : ['#405de6', '#e1306c'];
+  t.boost = Array.isArray(t.boost) ? t.boost : [];
+  t.feeds = (t.feeds || []).map((f) => (typeof f === 'string' ? { url: f } : f)).filter((f) => f && f.url);
+}
+
+const pick = (arr, random) => arr[Math.min(arr.length - 1, Math.floor(random() * arr.length))];
 
 /* ---------- fetching ---------- */
 
@@ -324,7 +347,7 @@ export function selectPosts(topicBuckets, postCount) {
 
 /* ---------- main entry ---------- */
 
-export async function buildFeed({ interestsFile, log = console.error, images = true, now = Date.now() } = {}) {
+export async function buildFeed({ interestsFile, log = console.error, images = true, now = Date.now(), random = Math.random } = {}) {
   const cfg = await loadInterests(interestsFile);
   const fetchFeed = makeFeedFetcher(log);
   const cutoff = now - cfg.maxAgeDays * 864e5;
@@ -332,10 +355,14 @@ export async function buildFeed({ interestsFile, log = console.error, images = t
   const seenTitle = new Set();
   const sources = { ok: [], failed: [] };
 
-  log(`Pulling ${cfg.topics.reduce((n, t) => n + t.feeds.length, 0)} feeds across ${cfg.topics.length} topics…`);
+  // One wildcard interest per build, drawn from the intersections in interests.json.
+  const wild = cfg.wildcards.topics.length ? pick(cfg.wildcards.topics, random) : null;
+  const topics = wild ? [...cfg.topics, wild] : cfg.topics;
+
+  log(`Pulling ${topics.reduce((n, t) => n + t.feeds.length, 0)} feeds across ${cfg.topics.length} topics${wild ? ` (wildcard: ${wild.name})` : ''}…`);
 
   const buckets = await Promise.all(
-    cfg.topics.map(async (topic) => {
+    topics.map(async (topic) => {
       const results = await Promise.all(topic.feeds.map(async (f) => ({ f, r: await fetchFeed(f.url) })));
       const items = [];
       for (const { f, r } of results) {
@@ -365,18 +392,38 @@ export async function buildFeed({ interestsFile, log = console.error, images = t
     });
   }
 
-  let posts = selectPosts(buckets, cfg.postCount);
+  const wildBucket = wild && buckets.find((b) => b.id === wild.id);
+  let posts = selectPosts(buckets.filter((b) => b !== wildBucket), cfg.postCount);
+  const postCount = posts.length;
+
+  // Extras ride along on top of the 40: a wildcard post or two, and a card per configured app.
+  // They land past the first couple of posts, never at the very top.
+  const slot = () => Math.min(posts.length, 2 + Math.floor(random() * Math.max(1, Math.min(posts.length - 1, 10))));
+  if (wildBucket?.items.length) {
+    const between = wild.between.map((id) => cfg.topics.find((t) => t.id === id).name);
+    const extras = roundRobinBySource([...wildBucket.items].sort((a, b) => b.score - a.score), cfg.wildcards.slots);
+    for (const p of extras) posts.splice(slot(), 0, { ...p, wildcard: { between, why: wild.why } });
+  }
+  for (const card of cfg.cards) {
+    const msg = card.messages.length ? pick(card.messages, random) : { title: card.name, text: '' };
+    posts.splice(slot(), 0, {
+      id: `card-${card.id}`, kind: 'card', topic: null, source: card.name, title: msg.title, summary: msg.text || '',
+      url: card.url, emoji: card.emoji, gradient: card.gradient, cta: card.cta, image: null, author: null, audio: null, publishedAt: null, score: 0,
+    });
+  }
+
   if (images) posts = await enrichImages(posts, { log });
 
   const counts = Object.fromEntries(buckets.map((b) => [b.id, posts.filter((p) => p.topic === b.id).length]));
+  const topicSummary = (t) => ({ id: t.id, name: t.name, emoji: t.emoji, gradient: t.gradient, count: counts[t.id] || 0, available: buckets.find((b) => b.id === t.id)?.items.length || 0 });
   const feed = {
     generatedAt: new Date(now).toISOString(),
-    postCount: posts.length,
+    postCount,
     target: cfg.postCount,
-    topics: cfg.topics.map((t) => ({ id: t.id, name: t.name, emoji: t.emoji, gradient: t.gradient, count: counts[t.id] || 0, available: buckets.find((b) => b.id === t.id)?.items.length || 0 })),
+    topics: [...cfg.topics.map(topicSummary), ...(wild ? [{ ...topicSummary(wild), wildcard: true, between: wild.between, why: wild.why }] : [])],
     posts,
     sources,
   };
-  log(`Built ${posts.length}/${cfg.postCount} posts · ${sources.ok.length} feeds ok, ${sources.failed.length} failed`);
+  log(`Built ${postCount}/${cfg.postCount} posts (+${posts.length - postCount} extras) · ${sources.ok.length} feeds ok, ${sources.failed.length} failed`);
   return feed;
 }

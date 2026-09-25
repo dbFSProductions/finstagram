@@ -1,5 +1,6 @@
 node_modules/
 .cache/
 public/feed.json
+public/articles/
 .DS_Store
 npm-debug.log*

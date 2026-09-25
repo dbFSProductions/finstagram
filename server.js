@@ -8,6 +8,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildFeed } from './src/feed.js';
+import { fetchArticle } from './src/article.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = Number(process.env.PORT) || 3040;
@@ -68,6 +69,47 @@ app.get('/api/feed', async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: err.message });
+  }
+});
+
+/* ---------- reader view ---------- */
+
+const ARTICLE_TTL_MS = 6 * 60 * 60 * 1000;
+const ARTICLE_CACHE_MAX = 300;
+const articles = new Map();   // url -> { at, promise }
+
+function hostOf(url) {
+  try { return new URL(url).hostname.replace(/^www\./, ''); } catch { return null; }
+}
+
+// Only fetch pages the feed itself pointed at: a post in the current feed, or
+// (for saved posts that have since rotated out) a host one of the sources uses.
+function allowedArticleUrl(id, url) {
+  const post = id && cached?.posts.find((p) => p.id === id);
+  if (post) return post.url;
+  if (!/^https?:\/\//i.test(url || '')) return null;
+  const host = hostOf(url);
+  const known = new Set([...(cached?.posts || []).map((p) => hostOf(p.url)), ...(cached?.sources?.ok || []).map((s) => hostOf(s.url))]);
+  return host && known.has(host) ? url : null;
+}
+
+function getArticle(url) {
+  const hit = articles.get(url);
+  if (hit && Date.now() - hit.at < ARTICLE_TTL_MS) return hit.promise;
+  const promise = fetchArticle(url).catch((err) => { articles.delete(url); throw err; });
+  articles.set(url, { at: Date.now(), promise });
+  if (articles.size > ARTICLE_CACHE_MAX) articles.delete(articles.keys().next().value);
+  return promise;
+}
+
+app.get('/api/article', async (req, res) => {
+  const url = allowedArticleUrl(String(req.query.id || ''), String(req.query.url || ''));
+  res.set('cache-control', 'no-store');
+  if (!url) return res.status(404).json({ error: 'Not a post in this feed' });
+  try {
+    res.json(await getArticle(url));
+  } catch (err) {
+    res.status(502).json({ error: err.message });
   }
 });
 

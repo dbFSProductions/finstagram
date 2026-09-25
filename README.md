@@ -8,8 +8,10 @@ you get the "You're all caught up" screen and your afternoon back.
 Interests out of the box: AI, physics (string theory, quantum mechanics, relativity),
 philosophy, ancient Chinese thought (Confucius, Laozi, Zhuangzi, the Warring States),
 Zen, home electronics (Raspberry Pi, Daisy Seed, Arduino), history (Rome, Spain,
-empires in general), guitar effects, language and etymology (Romance languages especially)
-and personal productivity. Adding more is a JSON edit.
+empires in general), guitar effects, language and etymology (Romance languages especially),
+personal productivity and men's tailored fashion. Adding more is a JSON edit. Each
+build also throws in one wildcard interest drawn from where those overlap, and a
+card nudging you towards your Catalan practice app.
 
 ## Run it
 
@@ -38,7 +40,9 @@ Options:
 
 `npm run build` writes `public/feed.json`. The `public/` folder is then a static
 site: host it anywhere (GitHub Pages, a Raspberry Pi, a folder on your Mac) and
-the app reads the JSON directly. The included workflow in `.github/workflows/pages.yml`
+the app reads the JSON directly. The build also captures each post's article into
+`public/articles/<id>.json`, so the reader view works on a static host too; a
+page that couldn't be read at build time falls back to a link to the original site. The included workflow in `.github/workflows/pages.yml`
 rebuilds the feed every six hours and publishes to GitHub Pages, if you turn Pages on
 for the repo (Settings → Pages → Source: GitHub Actions).
 
@@ -72,6 +76,27 @@ Restart the server (or re-run `npm run build`) and the new interest appears in
 the story row at the top. Feeds that don't answer are skipped and listed under
 the Interests tab, so a dead URL never breaks the app.
 
+## Practice cards and wildcards
+
+Two more sections in `interests.json`, both optional:
+
+**`cards`** are nudges towards another app. Each has a `url`, a `cta` and a list of
+`messages`; every build picks one message and drops it into the feed as a card
+near the top. The one shipped points at Xerra, the Catalan pronunciation trainer
+from `listen-record-learn`, and its messages mention things you can only do over
+there (road mode, level 2, favourites) so the itch has somewhere to go.
+
+**`wildcards`** are interests that sit *between* two of your real ones, each with
+`between: [id, id]` and a one-line `why`. Every build draws one at random and
+gives it `slots` posts (one by default), labelled "Because you like X and Y",
+so the feed has a small surprise in it each time. The shipped set was written by
+looking at where the existing interests overlap: AI ∩ philosophy is minds and
+machines, electronics ∩ guitar effects is synth DIY, Zen ∩ productivity is slow
+living, and so on. Add your own the same way; a wildcard is just a topic with two
+extra fields.
+
+Both ride on top of the 40, not inside it.
+
 ## How the 40 are chosen
 
 1. Every feed is fetched in parallel, items older than `maxAgeDays` are dropped,
@@ -89,7 +114,11 @@ the Interests tab, so a dead URL never breaks the app.
 * **Double-tap** a post, or tap the heart, to like it. Likes are stored in the browser.
 * **Bookmark** keeps a post past the next refresh. Saved posts live under the bookmark tab.
 * **Paper plane** opens the iOS share sheet (or copies the link on desktop).
-* **Speech bubble**, the picture, the title, or the ⋯ menu all open the article.
+* **Speech bubble**, the picture, the title, or the ⋯ menu open the article in the
+  built-in reader: the page is fetched (by the server, or at build time for the
+  static site) and reduced to just the body text and pictures, so no cookie wall,
+  no ad slots. The link icon at the top of the reader, or **Read on …** under a
+  post, opens the original site instead.
 * **Story circles** at the top filter the feed to one interest. Tap **All** to go back.
 * **Search** shows the whole feed as a grid and filters it as you type.
 * **Interests** shows every topic, how many posts it got, and which sources answered.

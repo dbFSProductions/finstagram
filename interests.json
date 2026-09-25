@@ -5,7 +5,11 @@
     "weight (relative share of the 40 slots), optional boost (keywords that push matching posts up),",
     "and feeds. A feed is a URL string, or an object { url, name, include: [keywords] } where include",
     "keeps only items whose title or summary mention one of the keywords (handy for broad feeds).",
-    "Dead feeds are skipped with a warning; nothing breaks."
+    "Dead feeds are skipped with a warning; nothing breaks.",
+    "cards: apps to be nudged towards. Each has a url, cta and a list of messages; one message is picked",
+    "per build and dropped into the feed as a practice card near the top.",
+    "wildcards: extra interests that sit between two of the topics above (between: [id, id]). One is drawn",
+    "at random every build and gets `slots` posts, so the feed has a small surprise in it each time."
   ],
   "postCount": 40,
   "maxAgeDays": 21,
@@ -972,5 +976,614 @@
         }
       ]
     }
-  ]
+  ],
+  "cards": [
+    {
+      "id": "xerra",
+      "name": "Xerra",
+      "emoji": "🗣️",
+      "gradient": [
+        "#da121a",
+        "#f6b21b"
+      ],
+      "url": "https://dbfsproductions.github.io/listen-record-learn/",
+      "cta": "Practise now",
+      "messages": [
+        {
+          "title": "Cinc minuts de català?",
+          "text": "Five minutes. One deck, a handful of phrases, A/B playback. Your weakest word is waiting in Xerra."
+        },
+        {
+          "title": "Which word did you skip last time?",
+          "text": "Xerra scores your weakest word, not your average. Go and find it."
+        },
+        {
+          "title": "Road mode on the walk?",
+          "text": "Listen and repeat with nothing to read. Xerra's road mode fits in a walk to the shops."
+        },
+        {
+          "title": "Level 2 is calling",
+          "text": "The phrases you've said well four times are waiting to be recalled from memory. Recall is what makes them stick."
+        },
+        {
+          "title": "Bon dia. Say it out loud.",
+          "text": "Record it, hear the model, hear yourself. The gap between the two is the lesson."
+        },
+        {
+          "title": "The starred phrases need a run",
+          "text": "Favourites are the phrases you said you needed more of. Drill them before the feed drills you."
+        }
+      ]
+    }
+  ],
+  "wildcards": {
+    "slots": 1,
+    "topics": [
+      {
+        "id": "wild-minds-machines",
+        "name": "Minds & machines",
+        "emoji": "🧠",
+        "gradient": [
+          "#4b134f",
+          "#2575fc"
+        ],
+        "between": [
+          "ai",
+          "philosophy"
+        ],
+        "why": "AI meets philosophy: whether anything is home inside the models.",
+        "boost": [
+          "conscious",
+          "mind",
+          "moral",
+          "sentien",
+          "alignment"
+        ],
+        "feeds": [
+          {
+            "url": "https://www.lesswrong.com/feed.xml?view=curated-rss",
+            "name": "LessWrong (curated)"
+          },
+          {
+            "url": "https://aeon.co/feed.rss",
+            "name": "Aeon",
+            "include": [
+              "machine",
+              "artificial",
+              "robot",
+              "algorithm",
+              "computer"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "wild-contemplative-science",
+        "name": "Contemplative science",
+        "emoji": "🧘",
+        "gradient": [
+          "#134e5e",
+          "#2c5364"
+        ],
+        "between": [
+          "zen",
+          "physics"
+        ],
+        "why": "Meditation meets the lab: attention, time, and what a mind can measure.",
+        "boost": [
+          "meditat",
+          "attention",
+          "conscious",
+          "time"
+        ],
+        "feeds": [
+          {
+            "url": "https://nautil.us/feed/",
+            "name": "Nautilus",
+            "include": [
+              "conscious",
+              "mind",
+              "meditat",
+              "attention",
+              "brain"
+            ]
+          },
+          {
+            "url": "https://www.mindandlife.org/feed/",
+            "name": "Mind & Life"
+          },
+          {
+            "url": "https://tricycle.org/feed/",
+            "name": "Tricycle",
+            "include": [
+              "science",
+              "neuro",
+              "physic",
+              "brain"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "wild-synth-diy",
+        "name": "Synth DIY",
+        "emoji": "🎛️",
+        "gradient": [
+          "#11998e",
+          "#f7971e"
+        ],
+        "between": [
+          "electronics",
+          "guitar"
+        ],
+        "why": "Electronics plus guitar effects, one step sideways: modular synths and DIY noise boxes.",
+        "boost": [
+          "Eurorack",
+          "modular",
+          "DIY",
+          "oscillator",
+          "filter",
+          "Daisy"
+        ],
+        "feeds": [
+          {
+            "url": "https://www.synthtopia.com/feed/",
+            "name": "Synthtopia"
+          },
+          {
+            "url": "https://cdm.link/feed/",
+            "name": "Create Digital Music"
+          },
+          {
+            "url": "https://hackaday.com/tag/synthesizer/feed/",
+            "name": "Hackaday"
+          }
+        ]
+      },
+      {
+        "id": "wild-classics",
+        "name": "Classics",
+        "emoji": "📜",
+        "gradient": [
+          "#8e9eab",
+          "#e65c00"
+        ],
+        "between": [
+          "history",
+          "language"
+        ],
+        "why": "Rome and Latin were always going to meet here: the ancient texts themselves.",
+        "boost": [
+          "Latin",
+          "Greek",
+          "Homer",
+          "Virgil",
+          "Ovid",
+          "Cicero",
+          "Seneca"
+        ],
+        "feeds": [
+          {
+            "url": "https://antigonejournal.com/feed/",
+            "name": "Antigone"
+          },
+          {
+            "url": "https://sententiaeantiquae.com/feed/",
+            "name": "Sententiae Antiquae"
+          }
+        ]
+      },
+      {
+        "id": "wild-silk-road",
+        "name": "Silk Road",
+        "emoji": "🐪",
+        "gradient": [
+          "#b31217",
+          "#3a3f44"
+        ],
+        "between": [
+          "china",
+          "history"
+        ],
+        "why": "Between Chinese thought and the history of empires: the roads that joined them.",
+        "boost": [
+          "Silk Road",
+          "Sogdian",
+          "Samarkand",
+          "Tang",
+          "Mongol",
+          "Persia",
+          "Xiongnu",
+          "caravan"
+        ],
+        "feeds": [
+          {
+            "url": "https://www.worldhistory.org/rss/",
+            "name": "World History Encyclopedia",
+            "include": [
+              "Silk Road",
+              "Sogdian",
+              "Samarkand",
+              "Central Asia",
+              "Mongol",
+              "Xiongnu",
+              "caravan",
+              "Tang"
+            ]
+          },
+          {
+            "url": "https://www.historytoday.com/feed/rss.xml",
+            "name": "History Today",
+            "include": [
+              "Silk Road",
+              "China",
+              "Mongol",
+              "Persia",
+              "Central Asia"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "wild-slow-living",
+        "name": "Slow living",
+        "emoji": "🐌",
+        "gradient": [
+          "#71b280",
+          "#1d976c"
+        ],
+        "between": [
+          "zen",
+          "productivity"
+        ],
+        "why": "Zen's patience applied to the to-do list.",
+        "boost": [
+          "slow",
+          "simple",
+          "enough",
+          "quiet",
+          "less"
+        ],
+        "feeds": [
+          {
+            "url": "https://zenhabits.net/feed/",
+            "name": "Zen Habits"
+          },
+          {
+            "url": "https://www.becomingminimalist.com/feed/",
+            "name": "Becoming Minimalist"
+          },
+          {
+            "url": "https://www.theminimalists.com/feed/",
+            "name": "The Minimalists"
+          }
+        ]
+      },
+      {
+        "id": "wild-foundations",
+        "name": "Foundations of physics",
+        "emoji": "🎲",
+        "gradient": [
+          "#0f2027",
+          "#c94b4b"
+        ],
+        "between": [
+          "physics",
+          "philosophy"
+        ],
+        "why": "Physics and philosophy overlap exactly where nobody agrees what quantum mechanics means.",
+        "boost": [
+          "interpretation",
+          "many-worlds",
+          "measurement",
+          "reality",
+          "time",
+          "Bell"
+        ],
+        "feeds": [
+          {
+            "url": "https://www.quantamagazine.org/feed/",
+            "name": "Quanta Magazine",
+            "include": [
+              "interpretation",
+              "reality",
+              "philosoph",
+              "measurement",
+              "many-worlds",
+              "what is time"
+            ]
+          },
+          {
+            "url": "https://nautil.us/feed/",
+            "name": "Nautilus",
+            "include": [
+              "quantum",
+              "physic",
+              "reality",
+              "spacetime",
+              "universe"
+            ]
+          },
+          {
+            "url": "https://aeon.co/feed.rss",
+            "name": "Aeon",
+            "include": [
+              "quantum",
+              "physic",
+              "spacetime",
+              "universe",
+              "cosmolog"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "wild-tiny-ml",
+        "name": "Tiny ML",
+        "emoji": "🐜",
+        "gradient": [
+          "#38ef7d",
+          "#6a11cb"
+        ],
+        "between": [
+          "ai",
+          "electronics"
+        ],
+        "why": "AI small enough to run on the microcontrollers you already own.",
+        "boost": [
+          "microcontroller",
+          "ESP32",
+          "Pico",
+          "Raspberry Pi",
+          "TinyML",
+          "edge"
+        ],
+        "feeds": [
+          {
+            "url": "https://hackaday.com/tag/machine-learning/feed/",
+            "name": "Hackaday"
+          },
+          {
+            "url": "https://blog.adafruit.com/category/machine-learning/feed/",
+            "name": "Adafruit"
+          },
+          {
+            "url": "https://www.edge-ai-vision.com/feed/",
+            "name": "Edge AI and Vision Alliance"
+          }
+        ]
+      },
+      {
+        "id": "wild-hanzi",
+        "name": "Chinese characters",
+        "emoji": "🀄",
+        "gradient": [
+          "#e52d27",
+          "#f9d423"
+        ],
+        "between": [
+          "language",
+          "china"
+        ],
+        "why": "Etymology, but for characters: where Chinese words come from.",
+        "boost": [
+          "character",
+          "classical Chinese",
+          "etymolog",
+          "Mandarin",
+          "Cantonese",
+          "radical"
+        ],
+        "feeds": [
+          {
+            "url": "https://languagelog.ldc.upenn.edu/nll/?feed=rss2",
+            "name": "Language Log",
+            "include": [
+              "Chinese",
+              "Sinitic",
+              "Mandarin",
+              "Cantonese",
+              "character",
+              "hanzi",
+              "Sino"
+            ]
+          },
+          {
+            "url": "https://www.sinosplice.com/feed",
+            "name": "Sinosplice"
+          },
+          {
+            "url": "https://hackingchinese.com/feed/",
+            "name": "Hacking Chinese"
+          }
+        ]
+      },
+      {
+        "id": "wild-radio",
+        "name": "Radio & SDR",
+        "emoji": "📻",
+        "gradient": [
+          "#2c5364",
+          "#38ef7d"
+        ],
+        "between": [
+          "electronics",
+          "physics"
+        ],
+        "why": "Electromagnetism you can hold: software-defined radio and antenna hacks.",
+        "boost": [
+          "SDR",
+          "antenna",
+          "RTL-SDR",
+          "ham",
+          "satellite",
+          "shortwave"
+        ],
+        "feeds": [
+          {
+            "url": "https://www.rtl-sdr.com/feed/",
+            "name": "RTL-SDR"
+          },
+          {
+            "url": "https://hackaday.com/category/radio-hacks/feed/",
+            "name": "Hackaday"
+          }
+        ]
+      },
+      {
+        "id": "wild-tools-for-thought",
+        "name": "Tools for thought",
+        "emoji": "🗂️",
+        "gradient": [
+          "#93f9b9",
+          "#2575fc"
+        ],
+        "between": [
+          "productivity",
+          "ai"
+        ],
+        "why": "Note-taking meets AI: systems for thinking, not just for storing.",
+        "boost": [
+          "notes",
+          "second brain",
+          "Obsidian",
+          "writing",
+          "thinking"
+        ],
+        "feeds": [
+          {
+            "url": "https://fortelabs.com/feed/",
+            "name": "Forte Labs"
+          },
+          {
+            "url": "https://every.to/feed",
+            "name": "Every"
+          }
+        ]
+      },
+      {
+        "id": "wild-heritage-menswear",
+        "name": "Heritage menswear",
+        "emoji": "🧵",
+        "gradient": [
+          "#9b5c3f",
+          "#3a3f44"
+        ],
+        "between": [
+          "menswear-tailored",
+          "history"
+        ],
+        "why": "Tailoring with its history attached: cloth, workshops and the trades behind them.",
+        "boost": [
+          "bespoke",
+          "heritage",
+          "vintage",
+          "archive",
+          "mill",
+          "workshop",
+          "Savile Row"
+        ],
+        "feeds": [
+          {
+            "url": "https://www.permanentstyle.com/feed",
+            "name": "Permanent Style"
+          },
+          {
+            "url": "https://dieworkwear.com/feed/",
+            "name": "Die, Workwear!"
+          },
+          {
+            "url": "https://putthison.com/feed/",
+            "name": "Put This On"
+          }
+        ]
+      },
+      {
+        "id": "wild-ambient",
+        "name": "Ambient & generative music",
+        "emoji": "🌫️",
+        "gradient": [
+          "#71b280",
+          "#ffd200"
+        ],
+        "between": [
+          "zen",
+          "guitar"
+        ],
+        "why": "Zen stillness meets the pedalboard: ambient, drone and generative music.",
+        "boost": [
+          "ambient",
+          "drone",
+          "generative",
+          "loop",
+          "reverb"
+        ],
+        "feeds": [
+          {
+            "url": "https://www.headphonecommute.com/feed/",
+            "name": "Headphone Commute"
+          },
+          {
+            "url": "https://cdm.link/feed/",
+            "name": "Create Digital Music",
+            "include": [
+              "ambient",
+              "generative",
+              "drone",
+              "loop"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "wild-language-machines",
+        "name": "Language & machines",
+        "emoji": "🔤",
+        "gradient": [
+          "#f9d423",
+          "#6a11cb"
+        ],
+        "between": [
+          "language",
+          "ai"
+        ],
+        "why": "Etymology meets the language model.",
+        "boost": [
+          "translation",
+          "language model",
+          "dialect",
+          "low-resource",
+          "Romance"
+        ],
+        "feeds": [
+          {
+            "url": "https://languagelog.ldc.upenn.edu/nll/?feed=rss2",
+            "name": "Language Log",
+            "include": [
+              "LLM",
+              "GPT",
+              "language model",
+              "ChatGPT",
+              "machine translation",
+              "AI"
+            ]
+          },
+          {
+            "url": "https://rss.arxiv.org/rss/cs.CL",
+            "name": "arXiv cs.CL",
+            "include": [
+              "translation",
+              "low-resource",
+              "morpholog",
+              "dialect",
+              "etymolog",
+              "Romance",
+              "Catalan",
+              "Spanish"
+            ]
+          }
+        ]
+      }
+    ]
+  }
 }
