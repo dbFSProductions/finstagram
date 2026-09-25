@@ -84,8 +84,17 @@ function makeFeedFetcher(log) {
 
 const ENTITIES = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ', hellip: '…', mdash: '—', ndash: '–', rsquo: '’', lsquo: '‘', rdquo: '”', ldquo: '“' };
 
+// rss-parser sometimes yields { _: 'text', $: {attrs} } objects or arrays instead of strings.
+function asText(v) {
+  if (v == null) return '';
+  if (typeof v === 'string') return v;
+  if (Array.isArray(v)) return v.map(asText).filter(Boolean).join(', ');
+  if (typeof v === 'object') return asText(v._ ?? v.name ?? v['#'] ?? '');
+  return String(v);
+}
+
 export function stripHtml(html = '') {
-  return String(html)
+  return asText(html)
     .replace(/<script[\s\S]*?<\/script>/gi, ' ')
     .replace(/<style[\s\S]*?<\/style>/gi, ' ')
     .replace(/<br\s*\/?>|<\/(?:p|div|li|h\d|tr|blockquote|section|figcaption)>/gi, ' ')
@@ -191,7 +200,7 @@ function countKeywords(text, keywords) {
 
 function normaliseItem(item, feedDef, topic, parsed, now) {
   const title = stripHtml(item.title || '').slice(0, 200);
-  const link = (item.link || item.guid || '').trim();
+  const link = asText(item.link || item.guid).trim();
   if (!title || !/^https?:\/\//i.test(link)) return null;
   const body = item.contentEncoded || item.content || item.summary || item.contentSnippet || '';
   const summary = cleanSummary(body, title);
@@ -322,7 +331,8 @@ export async function buildFeed({ interestsFile, log = console.error, images = t
         if (!r.ok) { sources.failed.push({ topic: topic.id, url: f.url, error: r.error }); continue; }
         sources.ok.push({ topic: topic.id, url: f.url, name: sourceName(f, r.parsed), items: r.parsed.items?.length || 0 });
         for (const raw of (r.parsed.items || []).slice(0, MAX_ITEMS_PER_FEED)) {
-          const post = normaliseItem(raw, f, topic, r.parsed, now);
+          let post;
+          try { post = normaliseItem(raw, f, topic, r.parsed, now); } catch { continue; }
           if (!post) continue;
           if (post.publishedAt && Date.parse(post.publishedAt) < cutoff) continue;
           items.push(post);
