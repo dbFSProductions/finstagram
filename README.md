@@ -8,7 +8,8 @@ you get the "You're all caught up" screen and your afternoon back.
 Interests out of the box: AI, physics (string theory, quantum mechanics, relativity),
 philosophy, ancient Chinese thought (Confucius, Laozi, Zhuangzi, the Warring States),
 Zen, home electronics (Raspberry Pi, Daisy Seed, Arduino), history (Rome, Spain,
-empires in general) and guitar effects. Adding more is a JSON edit.
+empires in general), guitar effects, language and etymology (Romance languages especially)
+and personal productivity. Adding more is a JSON edit.
 
 ## Run it
 
