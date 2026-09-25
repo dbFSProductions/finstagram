@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Finstagram">
+  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+  <meta name="description" content="Forty posts about the things you actually care about. No infinite scroll.">
+  <title>Finstagram</title>
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Grand+Hotel&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+    <header class="topbar">
+      <h1 class="logo"><a href="#home">Finstagram</a></h1>
+      <div class="topbar-actions">
+        <button class="icon-btn" id="refresh-btn" aria-label="Pull fresh posts" title="Pull fresh posts"></button>
+      </div>
+    </header>
+    <main id="view" aria-live="polite"></main>
+    <nav class="tabbar" aria-label="Sections">
+      <a href="#home" class="tab" data-view="home" aria-label="Home"></a>
+      <a href="#search" class="tab" data-view="search" aria-label="Search"></a>
+      <a href="#liked" class="tab" data-view="liked" aria-label="Liked"></a>
+      <a href="#saved" class="tab" data-view="saved" aria-label="Saved"></a>
+      <a href="#me" class="tab tab-me" data-view="me" aria-label="Interests"></a>
+    </nav>
+  </div>
+  <div id="toast" class="toast" role="status"></div>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

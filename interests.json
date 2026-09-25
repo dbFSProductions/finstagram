@@ -1,0 +1,158 @@
+{
+  "_readme": [
+    "This file is the whole personality of Finstagram. Edit it to add, remove or reweight interests.",
+    "Each topic: id (short slug), name, emoji (used as the story/avatar icon), gradient (two CSS colours),",
+    "weight (relative share of the 40 slots), optional boost (keywords that push matching posts up),",
+    "and feeds. A feed is a URL string, or an object { url, name, include: [keywords] } where include",
+    "keeps only items whose title or summary mention one of the keywords (handy for broad feeds).",
+    "Dead feeds are skipped with a warning; nothing breaks."
+  ],
+  "postCount": 40,
+  "maxAgeDays": 21,
+  "topics": [
+    {
+      "id": "ai",
+      "name": "AI",
+      "emoji": "🤖",
+      "gradient": ["#6a11cb", "#2575fc"],
+      "weight": 6,
+      "boost": ["Anthropic", "Claude", "OpenAI", "DeepMind", "LLM", "agent", "reasoning", "open source", "open-weight"],
+      "feeds": [
+        { "url": "https://www.technologyreview.com/topic/artificial-intelligence/feed", "name": "MIT Technology Review" },
+        { "url": "https://simonwillison.net/atom/everything/", "name": "Simon Willison" },
+        { "url": "https://importai.substack.com/feed", "name": "Import AI" },
+        { "url": "https://blog.google/technology/ai/rss/", "name": "Google AI" },
+        { "url": "https://openai.com/news/rss.xml", "name": "OpenAI" },
+        { "url": "https://www.theverge.com/rss/ai-artificial-intelligence/index.xml", "name": "The Verge AI" },
+        { "url": "https://arstechnica.com/ai/feed/", "name": "Ars Technica AI" },
+        { "url": "https://rss.arxiv.org/rss/cs.AI", "name": "arXiv cs.AI", "include": ["language model", "reasoning", "agent", "alignment", "benchmark"] }
+      ]
+    },
+    {
+      "id": "physics",
+      "name": "Physics",
+      "emoji": "⚛️",
+      "gradient": ["#0f2027", "#2c5364"],
+      "weight": 5,
+      "boost": ["string theory", "quantum", "relativity", "black hole", "gravity", "entanglement", "spacetime", "holograph"],
+      "feeds": [
+        { "url": "https://www.quantamagazine.org/physics/feed/", "name": "Quanta Magazine" },
+        { "url": "https://physics.aps.org/feed/", "name": "APS Physics" },
+        { "url": "https://physicsworld.com/feed/", "name": "Physics World" },
+        { "url": "https://phys.org/rss-feed/physics-news/", "name": "Phys.org" },
+        { "url": "https://www.math.columbia.edu/~woit/wordpress/?feed=rss2", "name": "Not Even Wrong" },
+        { "url": "http://backreaction.blogspot.com/feeds/posts/default", "name": "Backreaction" },
+        { "url": "https://www.preposterousuniverse.com/feed/", "name": "Sean Carroll" },
+        { "url": "https://rss.arxiv.org/rss/hep-th", "name": "arXiv hep-th", "include": ["string", "holograph", "AdS", "black hole", "gravity"] },
+        { "url": "https://rss.arxiv.org/rss/quant-ph", "name": "arXiv quant-ph", "include": ["foundations", "entanglement", "measurement", "interpretation", "Bell"] },
+        { "url": "https://rss.arxiv.org/rss/gr-qc", "name": "arXiv gr-qc", "include": ["black hole", "gravitational wave", "cosmolog", "singularity"] }
+      ]
+    },
+    {
+      "id": "philosophy",
+      "name": "Philosophy",
+      "emoji": "🏛️",
+      "gradient": ["#c94b4b", "#4b134f"],
+      "weight": 4,
+      "boost": ["Wittgenstein", "Nietzsche", "Kant", "Spinoza", "Stoic", "Aristotle", "Plato", "consciousness", "free will", "ethics", "meaning"],
+      "feeds": [
+        { "url": "https://aeon.co/feed.rss", "name": "Aeon", "include": ["philosoph", "ethic", "conscious", "mind", "meaning", "moral", "metaphys", "Stoic", "Kant", "Nietzsche", "Wittgenstein", "Spinoza", "Aristotle", "Plato", "Hume", "existential"] },
+        { "url": "https://dailynous.com/feed/", "name": "Daily Nous" },
+        { "url": "https://plato.stanford.edu/rss/sep.xml", "name": "Stanford Encyclopedia of Philosophy" },
+        { "url": "https://www.themarginalian.org/feed/", "name": "The Marginalian" },
+        { "url": "https://3quarksdaily.com/feed", "name": "3 Quarks Daily", "include": ["philosoph", "Wittgenstein", "Nietzsche", "Kant", "Spinoza", "Stoic", "Aristotle", "Plato", "conscious", "ethic"] },
+        { "url": "https://partiallyexaminedlife.com/feed/", "name": "The Partially Examined Life" },
+        { "url": "https://philosophybites.com/atom.xml", "name": "Philosophy Bites" },
+        { "url": "https://philosophynow.org/rss", "name": "Philosophy Now" }
+      ]
+    },
+    {
+      "id": "china",
+      "name": "Chinese thought",
+      "emoji": "☯️",
+      "gradient": ["#b31217", "#e52d27"],
+      "weight": 4,
+      "boost": ["Confucius", "Confucian", "Laozi", "Lao Tzu", "Daoism", "Taoism", "Zhuangzi", "Mencius", "Mozi", "Xunzi", "Han Feizi", "Legalism", "Warring States", "Spring and Autumn", "Zhou", "Qin", "Han dynasty", "Sunzi", "Sun Tzu", "Art of War", "Dao De Jing", "Analects", "I Ching"],
+      "feeds": [
+        { "url": "https://warpweftandway.com/feed/", "name": "Warp, Weft, and Way" },
+        { "url": "https://chinahistorypodcast.com/feed/", "name": "The China History Podcast" },
+        { "url": "https://historyofphilosophy.net/rss.xml", "name": "History of Philosophy Without Any Gaps", "include": ["China", "Chinese", "Confuci", "Daoi", "Taoi", "Laozi", "Zhuangzi", "Mencius", "Mozi", "Xunzi", "Legalis", "Warring States", "Han", "Zhou", "Buddhis"] },
+        { "url": "https://aeon.co/feed.rss", "name": "Aeon", "include": ["Confuci", "Daoi", "Taoi", "Laozi", "Zhuangzi", "Chinese philosoph", "Warring States", "Mencius", "Han dynasty", "Tang dynasty", "Song dynasty"] },
+        { "url": "https://3quarksdaily.com/feed", "name": "3 Quarks Daily", "include": ["Confuci", "Daoi", "Taoi", "Laozi", "Zhuangzi", "Chinese philosoph", "Warring States", "Mencius"] },
+        { "url": "https://www.worldhistory.org/rss/", "name": "World History Encyclopedia", "include": ["China", "Chinese", "Confuci", "Daoi", "Taoi", "Zhou", "Qin", "Han dynasty", "Warring States", "Tang"] }
+      ]
+    },
+    {
+      "id": "zen",
+      "name": "Zen",
+      "emoji": "🪷",
+      "gradient": ["#134e5e", "#71b280"],
+      "weight": 3,
+      "boost": ["zen", "zazen", "koan", "Dogen", "Shunryu Suzuki", "Alan Watts", "meditation", "mindfulness", "Chan", "Bodhidharma", "Huang Po", "Thich Nhat Hanh"],
+      "feeds": [
+        { "url": "https://tricycle.org/feed/", "name": "Tricycle" },
+        { "url": "https://www.lionsroar.com/feed/", "name": "Lion's Roar" },
+        { "url": "https://zenstudiespodcast.com/feed/", "name": "Zen Studies Podcast" },
+        { "url": "https://sweepingzen.com/feed/", "name": "Sweeping Zen" },
+        { "url": "https://zenhabits.net/feed/", "name": "Zen Habits" },
+        { "url": "https://www.upaya.org/feed/podcast/", "name": "Upaya Zen Center" }
+      ]
+    },
+    {
+      "id": "electronics",
+      "name": "Electronics",
+      "emoji": "🔌",
+      "gradient": ["#11998e", "#38ef7d"],
+      "weight": 5,
+      "boost": ["Raspberry Pi", "Pico", "Daisy Seed", "Daisy", "Arduino", "ESP32", "synth", "Eurorack", "audio", "DSP", "MIDI", "guitar"],
+      "feeds": [
+        { "url": "https://www.raspberrypi.com/news/feed/", "name": "Raspberry Pi" },
+        { "url": "https://blog.arduino.cc/feed/", "name": "Arduino" },
+        { "url": "https://forum.electro-smith.com/latest.rss", "name": "Daisy Forum" },
+        { "url": "https://hackaday.com/tag/raspberry-pi/feed/", "name": "Hackaday" },
+        { "url": "https://hackaday.com/tag/arduino/feed/", "name": "Hackaday" },
+        { "url": "https://hackaday.com/tag/daisy-seed/feed/", "name": "Hackaday" },
+        { "url": "https://hackaday.com/category/musical-hacks/feed/", "name": "Hackaday" },
+        { "url": "https://blog.adafruit.com/category/raspberry-pi/feed/", "name": "Adafruit" },
+        { "url": "https://blog.adafruit.com/category/arduino/feed/", "name": "Adafruit" },
+        { "url": "https://www.tomshardware.com/feeds/all", "name": "Tom's Hardware", "include": ["Raspberry Pi", "Arduino", "Pico", "microcontroller"] }
+      ]
+    },
+    {
+      "id": "history",
+      "name": "History",
+      "emoji": "🏺",
+      "gradient": ["#8e9eab", "#3a3f44"],
+      "weight": 5,
+      "boost": ["Rome", "Roman", "Hispania", "Spain", "Iberia", "empire", "Byzantium", "Byzantine", "Carthage", "Hadrian", "Augustus", "legion", "Ottoman", "Mongol", "Persia", "Achaemenid", "Alexander", "Visigoth", "Al-Andalus", "Reconquista", "Habsburg"],
+      "feeds": [
+        { "url": "https://www.historytoday.com/feed/rss.xml", "name": "History Today" },
+        { "url": "https://followinghadrian.com/feed/", "name": "Following Hadrian" },
+        { "url": "https://www.heritagedaily.com/feed", "name": "HeritageDaily", "include": ["Roman", "Rome", "Iberia", "Spain", "Hispania", "empire", "Byzantine", "Carthag", "Visigoth", "Islamic", "Al-Andalus", "Greek", "Persian", "Ottoman", "Mongol", "Aztec", "Inca", "Egypt"] },
+        { "url": "https://www.archaeology.org/feed", "name": "Archaeology Magazine", "include": ["Roman", "Rome", "Iberia", "Spain", "Hispania", "empire", "Byzantine", "Carthag", "Visigoth", "Al-Andalus"] },
+        { "url": "https://www.worldhistory.org/rss/", "name": "World History Encyclopedia", "include": ["Roman", "Rome", "Iberia", "Spain", "Hispania", "empire", "Byzantine", "Carthag", "Persia", "Ottoman", "Mongol", "Alexander", "Assyria", "Babylon"] },
+        { "url": "https://thehistoryofbyzantium.com/feed/", "name": "The History of Byzantium" },
+        { "url": "https://fallofcivilizationspodcast.com/feed/", "name": "Fall of Civilizations" },
+        { "url": "https://feeds.feedburner.com/TheHistoryOfRome", "name": "The History of Rome" },
+        { "url": "https://www.historyhit.com/feed/", "name": "History Hit", "include": ["Roman", "Rome", "Spain", "Spanish", "empire", "Byzantine", "medieval", "ancient"] }
+      ]
+    },
+    {
+      "id": "guitar",
+      "name": "Guitar FX",
+      "emoji": "🎸",
+      "gradient": ["#f7971e", "#ffd200"],
+      "weight": 4,
+      "boost": ["pedal", "fuzz", "overdrive", "delay", "reverb", "modulation", "chorus", "phaser", "tremolo", "Big Muff", "Tube Screamer", "Klon", "Strymon", "Chase Bliss", "EQD", "Earthquaker", "JHS", "Boss", "DIY", "Daisy"],
+      "feeds": [
+        { "url": "https://delicious-audio.com/feed/", "name": "Delicious Audio" },
+        { "url": "https://www.effectsbay.com/feed/", "name": "Effects Bay" },
+        { "url": "https://pedaloftheday.com/feed/", "name": "Pedal of the Day" },
+        { "url": "https://www.premierguitar.com/feeds/feed.rss", "name": "Premier Guitar", "include": ["pedal", "effect", "fuzz", "overdrive", "delay", "reverb", "distortion", "modulation", "stompbox", "amp"] },
+        { "url": "https://guitar.com/feed/", "name": "Guitar.com", "include": ["pedal", "effect", "fuzz", "overdrive", "delay", "reverb", "distortion", "modulation", "stompbox"] },
+        { "url": "https://www.guitarworld.com/feeds/all", "name": "Guitar World", "include": ["pedal", "effect", "fuzz", "overdrive", "delay", "reverb", "distortion", "modulation", "stompbox"] },
+        { "url": "https://www.gearnews.com/category/guitar/feed/", "name": "Gearnews", "include": ["pedal", "effect", "fuzz", "overdrive", "delay", "reverb", "distortion", "modulation", "stompbox"] }
+      ]
+    }
+  ]
+}
