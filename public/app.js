@@ -29,6 +29,7 @@ const state = {
   error: null,
   loading: true,
   view: 'home',
+  feedSource: null,   // 'api' (live server) or 'static' (feed.json from a build)
   topicFilter: null,
   query: '',
   likes: new Set(load(STORE_LIKES, [])),
@@ -75,12 +76,29 @@ function longDate(iso) {
   const sameYear = d.getFullYear() === new Date().getFullYear();
   return d.toLocaleDateString(undefined, { month: 'long', day: 'numeric', ...(sameYear ? {} : { year: 'numeric' }) });
 }
-function toast(msg) {
+function clock(iso) {
+  return new Date(iso).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+}
+function toast(msg, ms = 1800) {
   $toast.textContent = msg;
   $toast.classList.add('show');
   clearTimeout(toast.t);
-  toast.t = setTimeout(() => $toast.classList.remove('show'), 1800);
+  toast.t = setTimeout(() => $toast.classList.remove('show'), ms);
 }
+
+// When the next static build is due, from the "M */N * * *" cron the workflow passes through feed.json.
+function nextBuild(feed) {
+  const m = /^(\d+) \*\/(\d+) \* \* \*$/.exec(feed?.schedule || '');
+  if (!m) return null;
+  const [minute, every] = [Number(m[1]), Number(m[2])];
+  const now = new Date();
+  for (let h = 0; h <= 48; h++) {
+    const t = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), now.getUTCHours() + h, minute));
+    if (t.getUTCHours() % every === 0 && t > now) return t.toISOString();
+  }
+  return null;
+}
+const refreshLabel = () => (state.feedSource === 'static' ? 'Check for new posts' : 'Pull fresh posts');
 
 /* ---------- data ---------- */
 async function loadFeed({ refresh = false } = {}) {
@@ -97,8 +115,11 @@ async function loadFeed({ refresh = false } = {}) {
       const feed = await res.json();
       if (!Array.isArray(feed.posts)) throw new Error(`${base}: not a feed`);
       state.feed = feed;
+      state.feedSource = base.startsWith('api') ? 'api' : 'static';
       state.loading = false;
       $refresh.classList.remove('spinning');
+      $refresh.title = refreshLabel();
+      $refresh.setAttribute('aria-label', refreshLabel());
       render();
       return;
     } catch (e) {
@@ -109,6 +130,37 @@ async function loadFeed({ refresh = false } = {}) {
   state.error = errors.join('\n');
   $refresh.classList.remove('spinning');
   render();
+}
+
+// The live server re-pulls every feed on demand. A static host can only hand
+// back whatever the last scheduled build wrote, so there the button checks for
+// a newer build rather than pretending to pull.
+async function refreshFeed() {
+  if (state.feedSource !== 'static') {
+    toast('Pulling fresh posts…');
+    return loadFeed({ refresh: true });
+  }
+  toast('Checking for a newer feed…');
+  $refresh.classList.add('spinning');
+  try {
+    const res = await fetch(`feed.json?_=${Date.now()}`, { cache: 'no-store' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const feed = await res.json();
+    if (!Array.isArray(feed.posts)) throw new Error('not a feed');
+    if (feed.generatedAt === state.feed.generatedAt) {
+      const due = nextBuild(feed);
+      toast(`Already up to date · built ${clock(feed.generatedAt)}${due ? `, next build about ${clock(due)}` : ''}`, 3200);
+    } else {
+      state.feed = feed;
+      state.expanded.clear();
+      render();
+      window.scrollTo({ top: 0 });
+      toast(`Newer feed, built ${clock(feed.generatedAt)}`);
+    }
+  } catch {
+    toast('Could not check for a newer feed');
+  }
+  $refresh.classList.remove('spinning');
 }
 
 /* ---------- rendering ---------- */
@@ -166,14 +218,14 @@ function renderHome() {
 }
 
 function renderCaughtUp(shown) {
-  if (!shown.length) return `<div class="empty"><div class="glyph">🫥</div><h2>Nothing here right now</h2><p>None of this interest's feeds had anything recent. Pull fresh posts, or check its sources under Interests.</p></div>`;
+  if (!shown.length) return `<div class="empty"><div class="glyph">🫥</div><h2>Nothing here right now</h2><p>None of this interest's feeds had anything recent. ${refreshLabel()}, or check its sources under Interests.</p></div>`;
   const dated = state.feed.posts.map((p) => p.publishedAt).filter(Boolean).map(Date.parse);
   const oldest = dated.length ? Math.max(1, Math.round((Date.now() - Math.min(...dated)) / 864e5)) : null;
   const span = oldest ? ` from the last ${oldest === 1 ? 'day' : `${oldest} days`}` : '';
   const what = state.topicFilter ? `all ${shown.length} ${esc(topicOf(state.topicFilter).name)} posts` : `all ${state.feed.posts.length} posts`;
   return `<div class="caught-up"><div class="check"><div>${I.check}</div></div>
     <h2>You're all caught up</h2><p>You've seen ${what}${span}. That's the whole feed. Go build something.</p>
-    <button class="btn" data-action="refresh">Pull fresh posts</button></div>`;
+    <button class="btn" data-action="refresh">${refreshLabel()}</button></div>`;
 }
 
 function renderPost(p, { compact = false } = {}) {
@@ -280,7 +332,7 @@ function renderProfile() {
         <div><b>${f.sources.ok.length}</b><span>sources</span></div>
       </div>
     </div>
-    <p class="bio"><b>Finstagram</b>Only the stuff you actually want. Forty posts, then it stops.<br><small>Feed built ${longDate(f.generatedAt)} at ${new Date(f.generatedAt).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}${totalSources !== f.sources.ok.length ? ` · ${f.sources.failed.length} source${f.sources.failed.length === 1 ? '' : 's'} didn't answer` : ''}</small></p>
+    <p class="bio"><b>Finstagram</b>Only the stuff you actually want. Forty posts, then it stops.<br><small>Feed built ${longDate(f.generatedAt)} at ${clock(f.generatedAt)}${state.feedSource === 'static' && nextBuild(f) ? ` · next build about ${clock(nextBuild(f))}` : ''}${totalSources !== f.sources.ok.length ? ` · ${f.sources.failed.length} source${f.sources.failed.length === 1 ? '' : 's'} didn't answer` : ''}</small></p>
     <ul class="interest-list">${f.topics.map((t) => `
       <li class="interest">
         <a class="avatar" href="#home" data-action="filter" data-topic="${t.id}" style="${gradVars(t)}"><span>${t.emoji}</span></a>
@@ -520,7 +572,7 @@ document.addEventListener('click', (e) => {
   if (!el) return;
   const action = el.dataset.action;
   if (action === 'reload') return loadFeed();
-  if (action === 'refresh') { toast('Pulling fresh posts…'); return loadFeed({ refresh: true }); }
+  if (action === 'refresh') return refreshFeed();
   if (action === 'filter') {
     e.preventDefault();
     const id = el.dataset.topic || null;
@@ -568,7 +620,7 @@ document.addEventListener('input', (e) => {
   if (empty) $view.querySelector('.search-bar').insertAdjacentElement('afterend', empty);
 });
 
-$refresh.addEventListener('click', () => { toast('Pulling fresh posts…'); loadFeed({ refresh: true }); });
+$refresh.addEventListener('click', refreshFeed);
 
 document.querySelectorAll('.tab').forEach((t) => {
   const v = t.dataset.view;

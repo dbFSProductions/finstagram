@@ -9,6 +9,8 @@ import { prefetchArticles } from '../src/article.js';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const out = path.join(root, 'public', 'feed.json');
 const feed = await buildFeed({ interestsFile: process.env.INTERESTS_FILE || path.join(root, 'interests.json') });
+// The cron the static site is rebuilt on (set by the Pages workflow), so the app can say when the next build is due.
+if (process.env.FEED_SCHEDULE) feed.schedule = process.env.FEED_SCHEDULE;
 await fs.writeFile(out, JSON.stringify(feed));
 console.error(`Wrote ${feed.postCount} posts (+${feed.posts.length - feed.postCount} extras) → ${path.relative(process.cwd(), out)}`);
 if (feed.postCount === 0) process.exit(1);
