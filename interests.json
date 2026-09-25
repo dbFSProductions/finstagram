@@ -886,6 +886,91 @@
           "name": "Asian Efficiency"
         }
       ]
+    },
+    {
+      "id": "menswear-tailored",
+      "name": "Men's Tailored Fashion",
+      "emoji": "👔",
+      "gradient": [
+        "#2c2c54",
+        "#9b5c3f"
+      ],
+      "weight": 4,
+      "boost": [
+        "bespoke",
+        "tailoring",
+        "suit",
+        "menswear",
+        "dress code",
+        "tailored",
+        "formal wear",
+        "business casual",
+        "Savile Row",
+        "luxury",
+        "quality",
+        "craftsmanship",
+        "fabric",
+        "fit"
+      ],
+      "feeds": [
+        {
+          "url": "https://www.gq.com/feed/rss.xml",
+          "name": "GQ",
+          "include": [
+            "menswear",
+            "suit",
+            "tailoring",
+            "bespoke",
+            "formal wear",
+            "dress code",
+            "style"
+          ]
+        },
+        {
+          "url": "https://www.thegentlemansjournal.com/feed/",
+          "name": "The Gentleman's Journal"
+        },
+        {
+          "url": "https://gentlemansgazette.com/feed/",
+          "name": "Gentleman's Gazette"
+        },
+        {
+          "url": "https://www.propercloth.com/blog/feed/",
+          "name": "Proper Cloth"
+        },
+        {
+          "url": "https://www.businessoffashion.com/articles/curation/menswear/feed",
+          "name": "Business of Fashion",
+          "include": [
+            "menswear",
+            "tailoring",
+            "suits",
+            "bespoke",
+            "luxury"
+          ]
+        },
+        {
+          "url": "https://www.esquire.com/feed/rss.xml",
+          "name": "Esquire",
+          "include": [
+            "menswear",
+            "suit",
+            "tailoring",
+            "formal wear",
+            "style"
+          ]
+        },
+        {
+          "url": "https://www.selectism.com/feed/",
+          "name": "Selectism",
+          "include": [
+            "menswear",
+            "tailoring",
+            "fashion",
+            "luxury"
+          ]
+        }
+      ]
     }
   ]
 }
