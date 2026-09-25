@@ -42,9 +42,16 @@ Options:
 site: host it anywhere (GitHub Pages, a Raspberry Pi, a folder on your Mac) and
 the app reads the JSON directly. The build also captures each post's article into
 `public/articles/<id>.json`, so the reader view works on a static host too; a
-page that couldn't be read at build time falls back to a link to the original site. The included workflow in `.github/workflows/pages.yml`
-rebuilds the feed every six hours and publishes to GitHub Pages, if you turn Pages on
-for the repo (Settings → Pages → Source: GitHub Actions).
+page that couldn't be read at build time falls back to a link to the original site.
+The included workflow in `.github/workflows/pages.yml` rebuilds the feed every two
+hours and publishes to GitHub Pages, if you turn Pages on for the repo
+(Settings → Pages → Source: GitHub Actions).
+
+With no server there is nothing to pull on demand, so on the static site the
+refresh button becomes **Check for new posts**: it fetches the latest built
+`feed.json`, swaps it in if it's newer, and otherwise tells you when it was built
+and roughly when the next build is due (the workflow passes its cron to the build
+as `FEED_SCHEDULE`, so the two stay in step).
 
 ## Adding an interest
 

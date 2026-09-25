@@ -4,7 +4,7 @@ name: Publish feed to GitHub Pages
 
 on:
   schedule:
-    - cron: '17 */6 * * *'
+    - cron: '17 */2 * * *'   # keep FEED_SCHEDULE below in step: the app shows it as "next build"
   workflow_dispatch:
   push:
     branches: [main]
@@ -29,6 +29,8 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
+        env:
+          FEED_SCHEDULE: '17 */2 * * *'
       - uses: actions/upload-pages-artifact@v3
         with:
           path: public
