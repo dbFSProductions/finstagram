@@ -97,6 +97,24 @@ const SAMPLE = {
       ['Episode 300 — The end of the beginning', 'Looking back on three hundred episodes of Rome that refused to fall.', false, null, true],
     ],
   },
+  language: {
+    'Language Log': [
+      ['Why Spanish kept the Latin "f" that French threw away', 'Farina, harina, farine: one consonant, three answers, and a lot of Basque in the middle.', true],
+      ['Etymology corner: "salary" and the salt myth', 'Roman soldiers were not paid in salt. Here is what the word actually did.', false],
+    ],
+    'Etymonline': [
+      ['Word of the week: "amateur"', 'From Latin amator, one who loves. The sneer came later.', true],
+    ],
+  },
+  productivity: {
+    'Cal Newport': [
+      ['On the slow productivity of medieval scribes', 'A scriptorium produced one book a year and changed Europe. Notes on pace.', false],
+      ['Do less, then do it properly', 'Why the to-do list should get shorter, not longer, as you get better.', true],
+    ],
+    'Oliver Burkeman': [
+      ['The joy of missing out on the feed', 'Four thousand weeks, and none of them owed to an algorithm.', false],
+    ],
+  },
   guitar: {
     'Delicious Audio': [
       ['The 10 best fuzz pedals released this year', 'Germanium is back, silicon never left, and one of these is built on a Daisy Seed.', true],
