@@ -124,7 +124,37 @@ const SAMPLE = {
       ['DIY: a Tube Screamer clone with a proper bass control', 'Vero layout, parts list, and why the stock circuit is so bright.', false],
     ],
   },
+  'menswear-tailored': {
+    "Gentleman's Gazette": [
+      ['How a bespoke suit is actually made', 'From the first fitting to the finished baste: a walk through a Savile Row workroom and why the canvas matters.', true],
+      ['The navy blazer, and the three fabrics worth buying it in', 'Hopsack, serge and fresco, in that order, and the tailoring details that separate a blazer from a suit jacket.', true],
+    ],
+    'Proper Cloth': [
+      ['Shirt collars for a jacket-and-no-tie world', 'Why the spread collar wins when the tie stays home, and how much collar should show above the lapel.', false],
+    ],
+  },
 };
+
+// Every item links to a fake article page on the mock server, wrapped in the
+// usual publisher chrome, so the reader view has something to strip.
+const pages = new Map();
+function articleUrl(source, title, desc, withImage, seed) {
+  const p = `/${slug(source)}/${slug(title)}`;
+  const para = (n) => `<p>${desc} This is paragraph ${n} of the sample article, padded out so that it reads like a real one: the point of the piece is developed, an example is given, and a mild conclusion is drawn before the next paragraph does it all again.</p>`;
+  pages.set(p, `<!doctype html><html><head><title>${title} | ${source}</title><meta name="author" content="Sample Writer"></head><body>
+<div id="consent">We and our 1,247 partners use cookies. <button>Accept all cookies</button> <button>Manage preferences</button></div>
+<header><nav><a href="/">Home</a> <a href="/latest">Latest</a> <a href="/subscribe">Subscribe</a></nav></header>
+<article><h1>${title}</h1><p class="byline">By Sample Writer</p>
+${withImage ? `<figure><img src="${PIC(seed)}" alt=""><figcaption>Sample picture</figcaption></figure>` : ''}
+${[1, 2, 3, 4, 5, 6].map(para).join('\n')}
+<blockquote>A pull quote, because every article has one.</blockquote>
+<p>Read the <a href="/related-story">related story</a> for more.</p></article>
+<aside class="advert">ADVERTISEMENT: Limited offer, buy now!</aside>
+<footer>© ${source}. <a href="/privacy">Privacy</a></footer>
+<script>window.dataLayer = []; document.getElementById('consent').style.display = 'block';</script>
+</body></html>`);
+  return imgBase + p;
+}
 
 function rss(topic, source, items) {
   const feedSlug = slug(source);
@@ -132,8 +162,8 @@ function rss(topic, source, items) {
 <rss version="2.0" xmlns:media="http://search.yahoo.com/mrss/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:dc="http://purl.org/dc/elements/1.1/">
 <channel><title>${source}</title><link>https://example.com/${feedSlug}</link>
 ${items.map(([title, desc, withImage, author, audio], i) => {
-  const url = `https://example.com/${feedSlug}/${slug(title)}`;
   const seed = `${feedSlug}-${i}`;
+  const url = articleUrl(source, title, desc, withImage, seed);
   const hours = Math.round(((i + 1) * 7 + feedSlug.length * 3) % 160) + 1;
   return `<item><title><![CDATA[${title}]]></title><link>${url}</link><guid>${url}</guid>
 <pubDate>${hoursAgo(hours)}</pubDate>${author ? `<dc:creator>${author}</dc:creator>` : ''}
@@ -150,7 +180,7 @@ function atom(topic, source, items) {
   return `<?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom"><title>${source}</title><link href="https://example.com/${feedSlug}"/>
 ${items.map(([title, desc, withImage], i) => {
-  const url = `https://example.com/${feedSlug}/${slug(title)}`;
+  const url = articleUrl(source, title, desc, withImage, feedSlug + i);
   const author = items[i][3];
   return `<entry><title>${title.replace(/&/g, '&amp;').replace(/</g, '&lt;')}</title><link href="${url}"/><id>${url}</id><updated>${isoHoursAgo((i + 2) * 9)}</updated>${author ? `<author><name>${author}</name></author>` : ''}
 <content type="html">&lt;p&gt;${desc.replace(/&/g, '&amp;').replace(/</g, '&lt;')}&lt;/p&gt;${withImage ? `&lt;img src="${PIC(feedSlug + i)}"&gt;` : ''}</content></entry>`;
@@ -168,6 +198,8 @@ export async function startMockFeeds() {
     const p = req.url.split('?')[0];
     const img = p.match(/^\/img\/(.+)\.png$/);
     if (img) { res.writeHead(200, { 'content-type': 'image/svg+xml' }); return res.end(placeholderSvg(img[1])); }
+    const page = pages.get(p);
+    if (page) { res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' }); return res.end(page); }
     const body = routes.get(p);
     if (!body) { res.writeHead(404); return res.end('nope'); }
     res.writeHead(200, { 'content-type': 'application/rss+xml' });

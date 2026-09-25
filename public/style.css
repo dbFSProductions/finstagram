@@ -471,6 +471,91 @@ svg { display: block; }
 }
 .toast.show { opacity: 1; transform: translate(-50%, 0); }
 
+/* ---------- reader view ---------- */
+body.no-scroll { overflow: hidden; }
+.reader {
+  position: fixed; inset: 0;
+  z-index: 40;
+  background: rgba(0,0,0,0.45);
+}
+.reader-sheet {
+  position: absolute; inset: 0;
+  margin: 0 auto;
+  max-width: var(--col);
+  background: var(--bg);
+  display: flex; flex-direction: column;
+  animation: sheet-up 0.22s ease-out;
+}
+@media (min-width: 640px) {
+  .reader-sheet { border-left: 1px solid var(--border-soft); border-right: 1px solid var(--border-soft); }
+}
+@keyframes sheet-up { from { transform: translateY(24px); opacity: 0; } to { transform: none; opacity: 1; } }
+.reader-bar {
+  flex: 0 0 auto;
+  display: flex; align-items: center; gap: 6px;
+  height: calc(52px + var(--safe-top));
+  padding: var(--safe-top) 8px 0;
+  border-bottom: 1px solid var(--border-soft);
+  background: var(--bg);
+}
+.reader-bar .icon-btn svg { width: 22px; height: 22px; fill: none; stroke: var(--text); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.reader-host { flex: 1; text-align: center; font-size: 13px; color: var(--text-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.reader-scroll {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+.reader-article { padding: 18px 18px calc(32px + var(--safe-bottom)); }
+.reader-kicker {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 600; letter-spacing: 0.4px; text-transform: uppercase;
+  color: var(--text-2);
+}
+.reader-dot { width: 10px; height: 10px; border-radius: 50%; background: linear-gradient(135deg, var(--g1), var(--g2)); }
+.reader-title {
+  margin: 10px 0 8px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 26px; line-height: 1.2; font-weight: 700; letter-spacing: -0.2px;
+}
+.reader-byline { font-size: 13px; color: var(--text-2); margin-bottom: 18px; }
+.reader-body {
+  font-size: 17px; line-height: 1.6;
+  word-wrap: break-word; overflow-wrap: break-word;
+}
+.reader-body > :first-child { margin-top: 0; }
+.reader-body p, .reader-body ul, .reader-body ol, .reader-body blockquote, .reader-body pre, .reader-body table, .reader-body dl { margin: 0 0 1em; }
+.reader-body h1, .reader-body h2, .reader-body h3, .reader-body h4, .reader-body h5, .reader-body h6 { line-height: 1.25; margin: 1.4em 0 0.5em; }
+.reader-body h1 { font-size: 22px; }
+.reader-body h2 { font-size: 20px; }
+.reader-body h3 { font-size: 18px; }
+.reader-body h4, .reader-body h5, .reader-body h6 { font-size: 17px; }
+.reader-body a { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
+.reader-body img, .reader-hero { max-width: 100%; height: auto; margin: 0 auto; border-radius: 8px; }
+.reader-hero { margin-bottom: 1em; }
+.reader-body figure { margin: 1.2em 0; }
+.reader-body figcaption { font-size: 13px; color: var(--text-2); margin-top: 6px; }
+.reader-body blockquote { margin-left: 0; padding-left: 14px; border-left: 3px solid var(--border); color: var(--text-2); }
+.reader-body pre { font-size: 13px; padding: 12px; border-radius: 8px; background: var(--border-soft); overflow-x: auto; }
+.reader-body code { font-family: ui-monospace, Menlo, monospace; font-size: 0.9em; }
+.reader-body :not(pre) > code { background: var(--border-soft); padding: 1px 5px; border-radius: 4px; }
+.reader-body table { display: block; width: 100%; overflow-x: auto; border-collapse: collapse; font-size: 14px; }
+.reader-body th, .reader-body td { border: 1px solid var(--border-soft); padding: 6px 8px; text-align: left; vertical-align: top; }
+.reader-body hr { border: 0; border-top: 1px solid var(--border-soft); margin: 1.5em 0; }
+.reader-foot { margin-top: 28px; text-align: center; }
+.reader-skel { display: grid; gap: 12px; padding-top: 4px; }
+.reader-skel .bar {
+  height: 12px; border-radius: 6px;
+  background: linear-gradient(90deg, var(--skeleton) 25%, var(--skeleton-hi) 50%, var(--skeleton) 75%);
+  background-size: 400% 100%;
+  animation: shimmer 1.4s ease infinite;
+}
+.reader-fallback { text-align: center; padding: 32px 8px; color: var(--text-2); }
+.reader-fallback .glyph { font-size: 44px; margin-bottom: 10px; }
+.reader-fallback h2 { color: var(--text); font-size: 18px; margin: 0 0 6px; }
+.reader-fallback p { margin: 0 0 18px; font-size: 14px; }
+.reader-body .reader-fallback .btn { color: #fff; text-decoration: none; }
+
 @media (prefers-reduced-motion: reduce) {
   * { animation: none !important; transition: none !important; }
 }
