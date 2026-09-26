@@ -347,8 +347,11 @@ export function selectPosts(topicBuckets, postCount) {
 
 /* ---------- main entry ---------- */
 
-export async function buildFeed({ interestsFile, log = console.error, images = true, now = Date.now(), random = Math.random } = {}) {
+// exclude: ids of posts already served (see history.js). They are left out until a
+// topic's feeds have nothing unseen, then used to fill the gap, flagged repeat: true.
+export async function buildFeed({ interestsFile, log = console.error, images = true, now = Date.now(), random = Math.random, exclude = new Set(), postCount: postCountOverride } = {}) {
   const cfg = await loadInterests(interestsFile);
+  if (postCountOverride > 0) cfg.postCount = Number(postCountOverride);
   const fetchFeed = makeFeedFetcher(log);
   const cutoff = now - cfg.maxAgeDays * 864e5;
   const seenUrl = new Set();
@@ -392,9 +395,20 @@ export async function buildFeed({ interestsFile, log = console.error, images = t
     });
   }
 
-  const wildBucket = wild && buckets.find((b) => b.id === wild.id);
-  let posts = selectPosts(buckets.filter((b) => b !== wildBucket), cfg.postCount);
+  // Unseen posts first; previously served ones only fill whatever is left.
+  const asRepeat = (p) => ({ ...p, repeat: true });
+  const unseen = buckets.map((b) => ({ ...b, items: b.items.filter((p) => !exclude.has(p.id)) }));
+  const seen = buckets.map((b) => ({ ...b, items: b.items.filter((p) => exclude.has(p.id)) }));
+  const notWild = (b) => b.id !== wild?.id;
+  let posts = selectPosts(unseen.filter(notWild), cfg.postCount);
+  if (posts.length < cfg.postCount) {
+    posts.push(...selectPosts(seen.filter(notWild), cfg.postCount - posts.length).map(asRepeat));
+  }
   const postCount = posts.length;
+  const repeats = posts.filter((p) => p.repeat).length;
+  const wildBucket = wild && (unseen.find((b) => b.id === wild.id)?.items.length
+    ? unseen.find((b) => b.id === wild.id)
+    : { ...seen.find((b) => b.id === wild.id), items: (seen.find((b) => b.id === wild.id)?.items || []).map(asRepeat) });
 
   // Extras ride along on top of the 40: a wildcard post or two, and a card per configured app.
   // They land past the first couple of posts, never at the very top.
@@ -419,11 +433,13 @@ export async function buildFeed({ interestsFile, log = console.error, images = t
   const feed = {
     generatedAt: new Date(now).toISOString(),
     postCount,
+    fresh: postCount - repeats,
+    repeats,
     target: cfg.postCount,
     topics: [...cfg.topics.map(topicSummary), ...(wild ? [{ ...topicSummary(wild), wildcard: true, between: wild.between, why: wild.why }] : [])],
     posts,
     sources,
   };
-  log(`Built ${postCount}/${cfg.postCount} posts (+${posts.length - postCount} extras) · ${sources.ok.length} feeds ok, ${sources.failed.length} failed`);
+  log(`Built ${postCount}/${cfg.postCount} posts (${postCount - repeats} new, ${repeats} seen before, +${posts.length - postCount} extras) · ${sources.ok.length} feeds ok, ${sources.failed.length} failed`);
   return feed;
 }

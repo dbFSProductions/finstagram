@@ -44,6 +44,47 @@ test('selectPosts returns exactly N and never two same-topic posts back to back 
   for (let i = 1; i < posts.length; i++) assert.notEqual(posts[i].topic, posts[i - 1].topic, `adjacent same topic at ${i}`);
 });
 
+test('exclude keeps served posts out until the feeds run dry, then backfills flagged repeats', async () => {
+  const mock = await startMockFeeds();
+  try {
+    const opts = { interestsFile: mock.interestsFile, images: false, log: () => {}, postCount: 10, random: () => 0.5 };
+    const real = (p) => p.kind !== 'card';
+    const served = new Set();
+    let sawRepeats = false;
+    for (let round = 0; round < 8 && !sawRepeats; round++) {
+      const feed = await buildFeed({ ...opts, exclude: new Set(served) });
+      const core = feed.posts.filter(real);
+      assert.equal(feed.postCount, 10, `round ${round} still fills all slots`);
+      for (const p of core) {
+        if (p.repeat) assert.ok(served.has(p.id), `round ${round}: repeat ${p.id} was served before`);
+        else assert.ok(!served.has(p.id), `round ${round}: fresh ${p.id} never served before`);
+      }
+      assert.equal(feed.fresh + feed.repeats, feed.postCount);
+      if (feed.repeats) {
+        sawRepeats = true;
+        assert.ok(feed.fresh > 0 || served.size >= core.length, 'repeats only appear once the unseen pool is short');
+        assert.ok(core.findIndex((p) => p.repeat) >= feed.fresh, 'unseen posts come before the repeats');
+      } else {
+        assert.equal(feed.repeats, 0);
+      }
+      core.forEach((p) => served.add(p.id));
+    }
+    assert.ok(sawRepeats, 'the mock pool is small enough to run dry within a few rounds');
+  } finally {
+    await mock.close();
+  }
+});
+
+test('history remembers served posts, ignores cards, and prunes old entries', async () => {
+  const { loadHistory, excludeSet, recordServed } = await import('../src/history.js');
+  const h = await loadHistory('/nonexistent/finsta-history.json');
+  const day = 864e5;
+  recordServed(h, { posts: [{ id: 'old' }, { id: 'card-x', kind: 'card' }] }, Date.now() - 90 * day);
+  assert.deepEqual([...excludeSet(h)], ['old']);
+  recordServed(h, { posts: [{ id: 'new' }] });
+  assert.deepEqual([...excludeSet(h)], ['new'], '90-day-old entry pruned, card never recorded');
+});
+
 test('buildFeed pulls mock feeds end to end', async () => {
   const mock = await startMockFeeds();
   try {

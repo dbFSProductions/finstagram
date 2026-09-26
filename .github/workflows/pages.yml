@@ -28,6 +28,12 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      # Which posts earlier builds already showed, so each build replaces all of them.
+      - uses: actions/cache@v4
+        with:
+          path: .cache/history.json
+          key: feed-history-${{ github.run_id }}
+          restore-keys: feed-history-
       - run: npm run build
         env:
           FEED_SCHEDULE: '17 */2 * * *'

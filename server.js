@@ -9,6 +9,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildFeed } from './src/feed.js';
 import { fetchArticle } from './src/article.js';
+import { loadHistory, excludeSet, recordServed, saveHistory } from './src/history.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = Number(process.env.PORT) || 3040;
@@ -16,6 +17,7 @@ const TTL_MS = (Number(process.env.FEED_TTL_MINUTES) || 30) * 60 * 1000;
 const INTERESTS = process.env.INTERESTS_FILE || path.join(__dirname, 'interests.json');
 const CACHE_DIR = path.join(__dirname, '.cache');
 const CACHE_FILE = path.join(CACHE_DIR, 'feed.json');
+const HISTORY_FILE = path.join(CACHE_DIR, 'history.json');   // every post ever served, so a refresh replaces all of them
 
 let cached = null;      // last good feed
 let building = null;    // in-flight build promise
@@ -35,11 +37,13 @@ async function rebuild() {
   if (building) return building;
   building = (async () => {
     try {
-      const feed = await buildFeed({ interestsFile: INTERESTS });
+      const history = await loadHistory(HISTORY_FILE);
+      const feed = await buildFeed({ interestsFile: INTERESTS, exclude: excludeSet(history) });
       if (feed.posts.length || !cached) {
         cached = feed;
         await fs.mkdir(CACHE_DIR, { recursive: true });
         await fs.writeFile(CACHE_FILE, JSON.stringify(feed));
+        await saveHistory(HISTORY_FILE, recordServed(history, feed));
       }
       return cached;
     } finally {
