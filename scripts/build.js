@@ -6,10 +6,14 @@ import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { buildFeed } from '../src/feed.js';
 import { prefetchArticles } from '../src/article.js';
+import { loadHistory, excludeSet, recordServed, saveHistory } from '../src/history.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const out = path.join(root, 'public', 'feed.json');
-const feed = await buildFeed({ interestsFile: process.env.INTERESTS_FILE || path.join(root, 'interests.json') });
+const historyFile = path.join(root, '.cache', 'history.json');
+const history = await loadHistory(historyFile);
+const feed = await buildFeed({ interestsFile: process.env.INTERESTS_FILE || path.join(root, 'interests.json'), exclude: excludeSet(history) });
+await saveHistory(historyFile, recordServed(history, feed));
 // The cron the static site is rebuilt on (set by the Pages workflow), so the app can say when the next build is due.
 if (process.env.FEED_SCHEDULE) feed.schedule = process.env.FEED_SCHEDULE;
 // Fingerprint of the front end that shipped with this feed, so a phone holding an older app.js knows to reload.

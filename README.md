@@ -115,6 +115,10 @@ Both ride on top of the 40, not inside it.
 5. Topics are interleaved so neighbouring posts are about different things.
 6. Posts without a picture get the article's Open Graph image; if there's none,
    they render as a typographic card in the topic's colours.
+7. Every post handed out is remembered in `.cache/history.json`, and the next
+   build leaves all of them out. So a refresh replaces the whole feed. Only when
+   a topic's feeds have nothing you haven't seen are its slots filled from the
+   history, and those posts carry a "Seen before" badge.
 
 ## What the buttons do
 

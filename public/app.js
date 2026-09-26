@@ -6,6 +6,7 @@ const STORE_LIKES = 'finsta.likes';
 const STORE_SAVED = 'finsta.saved';
 const STORE_SEEN = 'finsta.seenTopics';
 const STORE_RELOADED = 'finsta.reloadedFor';
+const STORE_GEN = 'finsta.generatedAt';
 const RESUME_CHECK_MS = 60 * 1000;
 
 /* ---------- icons (inline SVG, Instagram-ish line style) ---------- */
@@ -121,6 +122,7 @@ async function loadFeed({ refresh = false } = {}) {
       state.feed = feed;
       state.feedSource = base.startsWith('api') ? 'api' : 'static';
       state.loadedAt = Date.now();
+      onNewFeed(feed, { announce: refresh });
       state.loading = false;
       $refresh.classList.remove('spinning');
       $refresh.title = refreshLabel();
@@ -136,6 +138,32 @@ async function loadFeed({ refresh = false } = {}) {
   state.error = errors.join('\n');
   $refresh.classList.remove('spinning');
   render();
+}
+
+// A different build means different posts: forget what was expanded and which
+// story rings were "seen", so the new forty start clean. After a refresh, jump
+// to the top and say how much of the feed is genuinely new.
+function onNewFeed(feed, { announce }) {
+  let last = null;
+  try { last = localStorage.getItem(STORE_GEN); } catch { /* private mode */ }
+  if (last !== feed.generatedAt) {
+    state.expanded.clear();
+    state.seenTopics.clear();
+    persist();
+    try { localStorage.setItem(STORE_GEN, feed.generatedAt); } catch { /* private mode */ }
+  }
+  if (announce) {
+    window.scrollTo({ top: 0 });
+    toast(newPostsLabel(feed), 3200);
+  }
+}
+
+function newPostsLabel(feed) {
+  // Counts cover the forty proper, not the wildcard or practice-card extras.
+  const core = feed.posts.filter((p) => p.kind !== 'card' && !p.wildcard);
+  const repeats = feed.repeats ?? core.filter((p) => p.repeat).length;
+  const fresh = feed.fresh ?? core.length - repeats;
+  return repeats ? `${fresh} new post${fresh === 1 ? '' : 's'}, ${repeats} seen before` : `${fresh} new posts`;
 }
 
 // The live server re-pulls every feed on demand. A static host can only hand
@@ -164,10 +192,10 @@ async function checkStaticFeed({ silent }) {
     } else {
       state.feed = feed;
       state.loadedAt = Date.now();
-      state.expanded.clear();
+      onNewFeed(feed, { announce: false });
       render();
       window.scrollTo({ top: 0 });
-      toast(`Newer feed, built ${clock(feed.generatedAt)}`);
+      toast(`Newer feed, built ${clock(feed.generatedAt)} · ${newPostsLabel(feed)}`, 3200);
     }
   } catch {
     if (!silent) toast('Could not check for a newer feed');
@@ -269,8 +297,10 @@ function renderCaughtUp(shown) {
   const oldest = dated.length ? Math.max(1, Math.round((Date.now() - Math.min(...dated)) / 864e5)) : null;
   const span = oldest ? ` from the last ${oldest === 1 ? 'day' : `${oldest} days`}` : '';
   const what = state.topicFilter ? `all ${shown.length} ${esc(topicOf(state.topicFilter).name)} posts` : `all ${state.feed.posts.length} posts`;
+  const repeats = shown.filter((p) => p.repeat).length;
+  const encore = repeats ? ` ${repeats === 1 ? 'One of them was' : `${repeats} of them were`} marked "seen before": those feeds had nothing you hadn't already been shown.` : '';
   return `<div class="caught-up"><div class="check"><div>${I.check}</div></div>
-    <h2>You're all caught up</h2><p>You've seen ${what}${span}. That's the whole feed. Go build something.</p>
+    <h2>You're all caught up</h2><p>You've seen ${what}${span}. That's the whole feed.${encore} Go build something.</p>
     <button class="btn" data-action="refresh">${refreshLabel()}</button></div>`;
 }
 
@@ -283,7 +313,7 @@ function renderPost(p, { compact = false } = {}) {
   const media = p.image
     ? `<img src="${esc(p.image)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" >`
     : renderCard(p, t);
-  const badge = p.audio ? `<span class="badge">🎧 Podcast</span>` : p.wildcard ? `<span class="badge">🎲 Wildcard</span>` : '';
+  const badge = p.audio ? `<span class="badge">🎧 Podcast</span>` : p.wildcard ? `<span class="badge">🎲 Wildcard</span>` : p.repeat ? `<span class="badge">↺ Seen before</span>` : '';
   const sub = p.wildcard
     ? `🎲 Because you like ${p.wildcard.between.map(esc).join(' and ') || 'what you like'}`
     : [t.name, p.author ? esc(p.author) : null, host(p.url)].filter(Boolean).join(' · ');
