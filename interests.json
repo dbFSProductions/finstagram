@@ -890,6 +890,26 @@
         {
           "url": "https://www.asianefficiency.com/feed/",
           "name": "Asian Efficiency"
+        },
+        {
+          "url": "https://zenhabits.net/feed/",
+          "name": "Zen Habits"
+        },
+        {
+          "url": "https://seths.blog/feed/",
+          "name": "Seth Godin"
+        },
+        {
+          "url": "https://blog.doist.com/feed/",
+          "name": "Doist"
+        },
+        {
+          "url": "https://blog.rescuetime.com/feed/",
+          "name": "RescueTime"
+        },
+        {
+          "url": "https://zapier.com/blog/feed/",
+          "name": "Zapier"
         }
       ]
     },
