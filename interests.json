@@ -56,10 +56,6 @@
           "name": "OpenAI"
         },
         {
-          "url": "https://www.theverge.com/rss/ai-artificial-intelligence/index.xml",
-          "name": "The Verge AI"
-        },
-        {
           "url": "https://arstechnica.com/ai/feed/",
           "name": "Ars Technica AI"
         },
@@ -86,7 +82,6 @@
       ],
       "weight": 5,
       "boost": [
-        "string theory",
         "quantum",
         "relativity",
         "black hole",
@@ -824,10 +819,6 @@
             "Latin",
             "translation"
           ]
-        },
-        {
-          "url": "https://www.reddit.com/r/etymology/top/.rss?t=week",
-          "name": "r/etymology"
         }
       ]
     },
@@ -890,6 +881,30 @@
         {
           "url": "https://www.asianefficiency.com/feed/",
           "name": "Asian Efficiency"
+        },
+        {
+          "url": "https://zenhabits.net/feed/",
+          "name": "Zen Habits"
+        },
+        {
+          "url": "https://tim.blog/feed/",
+          "name": "Tim Ferriss"
+        },
+        {
+          "url": "https://lifehacker.com/rss",
+          "name": "Lifehacker"
+        },
+        {
+          "url": "https://blog.doist.com/feed/",
+          "name": "Todoist Blog"
+        },
+        {
+          "url": "https://www.lifehack.org/feed",
+          "name": "Lifehack"
+        },
+        {
+          "url": "https://www.oliverburkeman.com/feed",
+          "name": "Oliver Burkeman"
         }
       ]
     },
