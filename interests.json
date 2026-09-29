@@ -56,10 +56,6 @@
           "name": "OpenAI"
         },
         {
-          "url": "https://www.theverge.com/rss/ai-artificial-intelligence/index.xml",
-          "name": "The Verge AI"
-        },
-        {
           "url": "https://arstechnica.com/ai/feed/",
           "name": "Ars Technica AI"
         },
@@ -86,7 +82,6 @@
       ],
       "weight": 5,
       "boost": [
-        "string theory",
         "quantum",
         "relativity",
         "black hole",
@@ -475,6 +470,45 @@
             "Pico",
             "microcontroller"
           ]
+        },
+        {
+          "url": "https://hackaday.com/feed/",
+          "name": "Hackaday",
+          "include": [
+            "DIY",
+            "synth",
+            "audio",
+            "DSP",
+            "guitar",
+            "microcontroller",
+            "Pico",
+            "ESP32",
+            "Teensy"
+          ]
+        },
+        {
+          "url": "https://www.sparkfun.com/news.rss",
+          "name": "SparkFun"
+        },
+        {
+          "url": "https://www.hackster.io/feed",
+          "name": "Hackster.io"
+        },
+        {
+          "url": "https://makezine.com/feed/",
+          "name": "Make:"
+        },
+        {
+          "url": "https://www.elektormagazine.com/rss",
+          "name": "Elektor"
+        },
+        {
+          "url": "https://blog.adafruit.com/feed/",
+          "name": "Adafruit"
+        },
+        {
+          "url": "https://www.musicthing.co.uk/feed/",
+          "name": "Music Thing"
         }
       ]
     },
@@ -722,6 +756,71 @@
             "modulation",
             "stompbox"
           ]
+        },
+        {
+          "url": "https://reverb.com/news/feed",
+          "name": "Reverb News",
+          "include": [
+            "pedal",
+            "effect",
+            "fuzz",
+            "overdrive",
+            "delay",
+            "reverb",
+            "distortion",
+            "modulation",
+            "stompbox"
+          ]
+        },
+        {
+          "url": "https://www.guitarpedalx.com/feed",
+          "name": "Guitar Pedal X"
+        },
+        {
+          "url": "https://www.sweetwater.com/insync/feed/",
+          "name": "Sweetwater inSync",
+          "include": [
+            "pedal",
+            "effect",
+            "fuzz",
+            "overdrive",
+            "delay",
+            "reverb",
+            "distortion",
+            "modulation",
+            "stompbox"
+          ]
+        },
+        {
+          "url": "https://www.musicradar.com/rss",
+          "name": "MusicRadar",
+          "include": [
+            "pedal",
+            "effect",
+            "fuzz",
+            "overdrive",
+            "delay",
+            "reverb",
+            "distortion",
+            "modulation",
+            "stompbox"
+          ]
+        },
+        {
+          "url": "https://www.kitrae.net/feed",
+          "name": "Kitrae (DIY)"
+        },
+        {
+          "url": "https://www.electrosmash.com/feed",
+          "name": "ElectroSmash"
+        },
+        {
+          "url": "https://hackaday.com/tag/guitar-pedal/feed/",
+          "name": "Hackaday"
+        },
+        {
+          "url": "https://hackaday.com/tag/guitar/feed/",
+          "name": "Hackaday"
         }
       ]
     },
@@ -824,10 +923,6 @@
             "Latin",
             "translation"
           ]
-        },
-        {
-          "url": "https://www.reddit.com/r/etymology/top/.rss?t=week",
-          "name": "r/etymology"
         }
       ]
     },
@@ -890,6 +985,30 @@
         {
           "url": "https://www.asianefficiency.com/feed/",
           "name": "Asian Efficiency"
+        },
+        {
+          "url": "https://zenhabits.net/feed/",
+          "name": "Zen Habits"
+        },
+        {
+          "url": "https://tim.blog/feed/",
+          "name": "Tim Ferriss"
+        },
+        {
+          "url": "https://lifehacker.com/rss",
+          "name": "Lifehacker"
+        },
+        {
+          "url": "https://blog.doist.com/feed/",
+          "name": "Todoist Blog"
+        },
+        {
+          "url": "https://www.lifehack.org/feed",
+          "name": "Lifehack"
+        },
+        {
+          "url": "https://www.oliverburkeman.com/feed",
+          "name": "Oliver Burkeman"
         }
       ]
     },
