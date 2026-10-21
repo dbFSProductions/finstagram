@@ -63,7 +63,7 @@ test('exclude keeps served posts out until the feeds run dry, then backfills fla
       if (feed.repeats) {
         sawRepeats = true;
         assert.ok(feed.fresh > 0 || served.size >= core.length, 'repeats only appear once the unseen pool is short');
-        assert.ok(core.findIndex((p) => p.repeat) >= feed.fresh, 'unseen posts come before the repeats');
+        assert.ok(core.filter((p) => !p.wildcard).findIndex((p) => p.repeat) >= feed.fresh, 'unseen posts come before the repeats');
       } else {
         assert.equal(feed.repeats, 0);
       }
@@ -113,6 +113,8 @@ test('buildFeed pulls mock feeds end to end', async () => {
     assert.match(cards[0].url, /listen-record-learn/);
     assert.ok(cards[0].title && cards[0].cta, 'card has a message and a call to action');
     assert.ok(feed.posts.indexOf(cards[0]) >= 2 && feed.posts.indexOf(cards[0]) <= 12, 'card lands near the top');
+    assert.ok(feed.posts.some((p) => p.topic === 'physics'), 'physics still represented');
+    assert.ok(!feed.posts.some((p) => /string theor|calabi/i.test(`${p.title} ${p.summary}`)), 'muted keywords are dropped');
     const arxiv = feed.posts.find((p) => p.source.startsWith('arXiv'));
     assert.ok(arxiv, 'arXiv item present');
     assert.ok(!/Announce Type/.test(arxiv.summary), 'arXiv boilerplate stripped');

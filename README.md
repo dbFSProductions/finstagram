@@ -5,7 +5,7 @@ It pulls real posts from RSS feeds for each of your interests, mixes them into
 **exactly 40 posts**, and then stops. No infinite scroll. When you reach the end
 you get the "You're all caught up" screen and your afternoon back.
 
-Interests out of the box: AI, physics (quantum mechanics, relativity),
+Interests out of the box: AI, physics (relativity, black holes, cosmology),
 philosophy, ancient Chinese thought (Confucius, Laozi, Zhuangzi, the Warring States),
 Zen, home electronics (Raspberry Pi, Daisy Seed, Arduino), history (Rome, Spain,
 empires in general), guitar effects, language and etymology (Romance languages especially),
@@ -77,6 +77,8 @@ Everything lives in `interests.json`. A topic looks like this:
 * A feed can be a plain URL, or an object with a display `name` and an `include`
   list, which keeps only items mentioning one of those words. That's how a broad
   feed like Aeon or Hackaday gets narrowed to what you want.
+* The top-level `mute` list drops any post mentioning one of its words, from every
+  topic and wildcard. It currently keeps quantum physics and string theory out.
 * Topic order is priority order when the same article shows up in two topics.
 
 Restart the server (or re-run `npm run build`) and the new interest appears in

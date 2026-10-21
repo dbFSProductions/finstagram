@@ -37,6 +37,7 @@ export async function loadInterests(file = path.resolve('interests.json')) {
   }
   cfg.postCount = Number(cfg.postCount) || 40;
   cfg.maxAgeDays = Number(cfg.maxAgeDays) || 21;
+  cfg.mute = Array.isArray(cfg.mute) ? cfg.mute.filter(Boolean) : [];
   cfg.topics.forEach(normaliseTopic);
   const ids = new Set(cfg.topics.map((t) => t.id));
   cfg.wildcards = {
@@ -232,7 +233,7 @@ function countKeywords(text, keywords) {
   return n;
 }
 
-function normaliseItem(item, feedDef, topic, parsed, now) {
+function normaliseItem(item, feedDef, topic, parsed, now, mute = []) {
   const title = stripHtml(item.title || '').slice(0, 200);
   const link = asText(item.link || item.guid).trim();
   if (!title || !/^https?:\/\//i.test(link)) return null;
@@ -245,6 +246,7 @@ function normaliseItem(item, feedDef, topic, parsed, now) {
   const audio = item.enclosure?.url && /^audio\//i.test(item.enclosure.type || '') ? item.enclosure.url : null;
   const haystack = `${title} ${summary}`;
   if (Array.isArray(feedDef.include) && feedDef.include.length && !hasKeyword(haystack, feedDef.include)) return null;
+  if (mute.length && hasKeyword(haystack, mute)) return null;
 
   const ageHours = publishedAt ? Math.max(0, (now - Date.parse(publishedAt)) / 36e5) : 24 * 30;
   const boostHits = countKeywords(haystack, topic.boost);
@@ -373,7 +375,7 @@ export async function buildFeed({ interestsFile, log = console.error, images = t
         sources.ok.push({ topic: topic.id, url: f.url, name: sourceName(f, r.parsed), items: r.parsed.items?.length || 0 });
         for (const raw of (r.parsed.items || []).slice(0, MAX_ITEMS_PER_FEED)) {
           let post;
-          try { post = normaliseItem(raw, f, topic, r.parsed, now); } catch { continue; }
+          try { post = normaliseItem(raw, f, topic, r.parsed, now, cfg.mute); } catch { continue; }
           if (!post) continue;
           if (post.publishedAt && Date.parse(post.publishedAt) < cutoff) continue;
           items.push(post);
