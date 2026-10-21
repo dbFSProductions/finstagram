@@ -38,11 +38,11 @@ const SAMPLE = {
       ['Physicists find a loophole in the black hole information paradox', 'A new calculation using island formulas suggests information escapes earlier than anyone expected.', true],
       ['The strange geometry hiding inside string theory\'s extra dimensions', 'Calabi–Yau manifolds are getting a machine-learning makeover.', true],
     ],
-    'Not Even Wrong': [
-      ['This week\'s hype', 'Another round of press releases claims a test of quantum gravity. It is not.', false],
+    'Science News': [
+      ['What the latest gravitational wave catalogue tells us about spacetime', 'Ninety mergers later, general relativity is still passing every test.', false],
     ],
-    'arXiv hep-th': [
-      ['Holographic Entanglement in de Sitter Space', 'arXiv:2609.04567v1 Announce Type: new Abstract: We study entanglement entropy in a holographic dual of de Sitter space and find a new class of extremal surfaces.', false, 'A. Author, B. Author'],
+    'Sean Carroll': [
+      ['Cosmology\'s Hubble tension, explained without the hype', 'Two ways of measuring how fast the universe expands still disagree. Here is why that matters.', false],
     ],
   },
   philosophy: {

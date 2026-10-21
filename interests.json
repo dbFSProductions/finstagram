@@ -8,11 +8,23 @@
     "Dead feeds are skipped with a warning; nothing breaks.",
     "cards: apps to be nudged towards. Each has a url, cta and a list of messages; one message is picked",
     "per build and dropped into the feed as a practice card near the top.",
+    "mute: keywords that drop a post from every topic and wildcard, whatever feed it came from.",
     "wildcards: extra interests that sit between two of the topics above (between: [id, id]). One is drawn",
     "at random every build and gets `slots` posts, so the feed has a small surprise in it each time."
   ],
   "postCount": 40,
   "maxAgeDays": 21,
+  "mute": [
+    "quantum",
+    "qubit",
+    "string theor",
+    "superstring",
+    "M-theory",
+    "Calabi",
+    "AdS/CFT",
+    "entanglement",
+    "many-worlds"
+  ],
   "topics": [
     {
       "id": "ai",
@@ -82,15 +94,18 @@
       ],
       "weight": 5,
       "boost": [
-        "quantum",
-        "relativity",
-        "black hole",
-        "gravity",
-        "entanglement",
-        "spacetime",
-        "holograph",
         "popular physics",
-        "popular science"
+        "popular science",
+        "explained",
+        "universe",
+        "black hole",
+        "relativity",
+        "gravity",
+        "spacetime",
+        "cosmolog",
+        "gravitational wave",
+        "astronom",
+        "particle"
       ],
       "feeds": [
         {
@@ -98,8 +113,12 @@
           "name": "Quanta Magazine"
         },
         {
-          "url": "https://feeds.aps.org/rss/recent/physics.xml",
-          "name": "APS Physics"
+          "url": "https://www.sciencenews.org/topic/physics/feed",
+          "name": "Science News"
+        },
+        {
+          "url": "https://www.newscientist.com/subject/physics/feed/",
+          "name": "New Scientist"
         },
         {
           "url": "https://physicsworld.com/feed/",
@@ -110,48 +129,12 @@
           "name": "Phys.org"
         },
         {
-          "url": "https://www.math.columbia.edu/~woit/wordpress/?feed=rss2",
-          "name": "Not Even Wrong"
-        },
-        {
-          "url": "http://backreaction.blogspot.com/feeds/posts/default",
-          "name": "Backreaction"
+          "url": "https://www.symmetrymagazine.org/feed",
+          "name": "Symmetry"
         },
         {
           "url": "https://www.preposterousuniverse.com/feed/",
           "name": "Sean Carroll"
-        },
-        {
-          "url": "https://rss.arxiv.org/rss/hep-th",
-          "name": "arXiv hep-th",
-          "include": [
-            "string",
-            "holograph",
-            "AdS",
-            "black hole",
-            "gravity"
-          ]
-        },
-        {
-          "url": "https://rss.arxiv.org/rss/quant-ph",
-          "name": "arXiv quant-ph",
-          "include": [
-            "foundations",
-            "entanglement",
-            "measurement",
-            "interpretation",
-            "Bell"
-          ]
-        },
-        {
-          "url": "https://rss.arxiv.org/rss/gr-qc",
-          "name": "arXiv gr-qc",
-          "include": [
-            "black hole",
-            "gravitational wave",
-            "cosmolog",
-            "singularity"
-          ]
         }
       ]
     },
@@ -1346,64 +1329,6 @@
           {
             "url": "https://www.theminimalists.com/feed/",
             "name": "The Minimalists"
-          }
-        ]
-      },
-      {
-        "id": "wild-foundations",
-        "name": "Foundations of physics",
-        "emoji": "🎲",
-        "gradient": [
-          "#0f2027",
-          "#c94b4b"
-        ],
-        "between": [
-          "physics",
-          "philosophy"
-        ],
-        "why": "Physics and philosophy overlap exactly where nobody agrees what quantum mechanics means.",
-        "boost": [
-          "interpretation",
-          "many-worlds",
-          "measurement",
-          "reality",
-          "time",
-          "Bell"
-        ],
-        "feeds": [
-          {
-            "url": "https://www.quantamagazine.org/feed/",
-            "name": "Quanta Magazine",
-            "include": [
-              "interpretation",
-              "reality",
-              "philosoph",
-              "measurement",
-              "many-worlds",
-              "what is time"
-            ]
-          },
-          {
-            "url": "https://nautil.us/feed/",
-            "name": "Nautilus",
-            "include": [
-              "quantum",
-              "physic",
-              "reality",
-              "spacetime",
-              "universe"
-            ]
-          },
-          {
-            "url": "https://aeon.co/feed.rss",
-            "name": "Aeon",
-            "include": [
-              "quantum",
-              "physic",
-              "spacetime",
-              "universe",
-              "cosmolog"
-            ]
           }
         ]
       },
