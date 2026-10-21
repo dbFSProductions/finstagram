@@ -38,7 +38,7 @@ const SAMPLE = {
       ['Physicists find a loophole in the black hole information paradox', 'A new calculation using island formulas suggests information escapes earlier than anyone expected.', true],
       ['The strange geometry hiding inside string theory\'s extra dimensions', 'Calabi–Yau manifolds are getting a machine-learning makeover.', true],
     ],
-    'Backreaction': [
+    'Science News': [
       ['What the latest gravitational wave catalogue tells us about spacetime', 'Ninety mergers later, general relativity is still passing every test.', false],
     ],
     'Sean Carroll': [

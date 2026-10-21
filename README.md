@@ -5,7 +5,7 @@ It pulls real posts from RSS feeds for each of your interests, mixes them into
 **exactly 40 posts**, and then stops. No infinite scroll. When you reach the end
 you get the "You're all caught up" screen and your afternoon back.
 
-Interests out of the box: AI, physics (relativity, black holes, cosmology),
+Interests out of the box: AI, popular physics (black holes, relativity, cosmology, written for curious non-specialists),
 philosophy, ancient Chinese thought (Confucius, Laozi, Zhuangzi, the Warring States),
 Zen, home electronics (Raspberry Pi, Daisy Seed, Arduino), history (Rome, Spain,
 empires in general), guitar effects, language and etymology (Romance languages especially),

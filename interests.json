@@ -94,14 +94,18 @@
       ],
       "weight": 5,
       "boost": [
-        "relativity",
+        "popular physics",
+        "popular science",
+        "explained",
+        "universe",
         "black hole",
+        "relativity",
         "gravity",
         "spacetime",
         "cosmolog",
         "gravitational wave",
-        "popular physics",
-        "popular science"
+        "astronom",
+        "particle"
       ],
       "feeds": [
         {
@@ -109,8 +113,12 @@
           "name": "Quanta Magazine"
         },
         {
-          "url": "https://feeds.aps.org/rss/recent/physics.xml",
-          "name": "APS Physics"
+          "url": "https://www.sciencenews.org/topic/physics/feed",
+          "name": "Science News"
+        },
+        {
+          "url": "https://www.newscientist.com/subject/physics/feed/",
+          "name": "New Scientist"
         },
         {
           "url": "https://physicsworld.com/feed/",
@@ -121,22 +129,12 @@
           "name": "Phys.org"
         },
         {
-          "url": "http://backreaction.blogspot.com/feeds/posts/default",
-          "name": "Backreaction"
+          "url": "https://www.symmetrymagazine.org/feed",
+          "name": "Symmetry"
         },
         {
           "url": "https://www.preposterousuniverse.com/feed/",
           "name": "Sean Carroll"
-        },
-        {
-          "url": "https://rss.arxiv.org/rss/gr-qc",
-          "name": "arXiv gr-qc",
-          "include": [
-            "black hole",
-            "gravitational wave",
-            "cosmolog",
-            "singularity"
-          ]
         }
       ]
     },
